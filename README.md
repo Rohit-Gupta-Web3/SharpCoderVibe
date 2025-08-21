@@ -39,7 +39,7 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 - **State Management** - Context API for theme and app state
 - **File Upload** - Drag & drop screenshot support
 - **Real-time Preview** - Live code preview and generation
- - **Prompt Improvement Service** - Next.js API leveraging Azure OpenAI for scaffolded prompt refinement
+ - **Prompt Improvement Service** - Next.js API leveraging Google Gemini for scaffolded prompt refinement
 
 ## 🏗 Tech Stack
 
@@ -53,7 +53,7 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 
 ## 🧠 Prompt Improvement Service
 
-Sharp Coder includes a Next.js API route that connects to Azure OpenAI for prompt enhancement. The service rewrites user prompts using an eight-step scaffold to clarify intent, surface context, enumerate constraints, and ensure coherent outputs. Source code lives in `lib/chatService.ts` with an accompanying route handler at `app/api/improve-prompt/route.ts`. Unit tests reside in `tests/` to validate normal usage, error conditions, and request timeouts.
+Sharp Coder includes a Next.js API route that connects to Google Gemini for prompt enhancement. The service rewrites user prompts using an eight-step scaffold to clarify intent, surface context, enumerate constraints, and ensure coherent outputs. Source code lives in `lib/chatService.ts` with an accompanying route handler at `app/api/improve-prompt/route.ts`. Unit tests reside in `tests/` to validate normal usage, error conditions, and request timeouts.
 
 ## 📋 Prerequisites
 
@@ -124,7 +124,7 @@ cp .env.example .env.local
 Add your environment variables:
 \`\`\`env
 # Optional: Add your API keys here
-OPENAI_API_KEY=your_openai_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 ANTHROPIC_API_KEY=your_anthropic_api_key_here
 GITHUB_TOKEN=your_github_token_here
 FIGMA_TOKEN=your_figma_token_here
@@ -344,7 +344,7 @@ If you have any questions or need help:
 
 ## 🗺 Roadmap
 
-- [ ] **AI Model Integration** - OpenAI, Anthropic, and local models
+ - [ ] **AI Model Integration** - Gemini, Anthropic, and local models
 - [ ] **Real-time Collaboration** - Multi-user editing
 - [ ] **Plugin System** - Extensible architecture
 - [ ] **Mobile App** - React Native companion app
