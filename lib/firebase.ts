@@ -6,9 +6,11 @@ const credJson = process.env.FIREBASE_SERVICE_ACCOUNT
   : undefined
 
 if (!getApps().length) {
-  initializeApp({
-    credential: credJson ? cert(credJson) : undefined,
-  })
+  if (credJson) {
+    initializeApp({ credential: cert(credJson) })
+  } else {
+    initializeApp()
+  }
 }
 
 export const db = getFirestore()
