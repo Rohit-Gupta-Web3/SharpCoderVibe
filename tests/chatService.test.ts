@@ -25,8 +25,8 @@ describe("ChatService", () => {
       );
       const body = JSON.parse(options.body);
       expect(body).toEqual({
-        contents: [{ role: "user", parts: [{ text: "test" }]}],
-        systemInstruction: { role: "system", parts: [{ text: SYSTEM_PROMPT }] }
+        contents: [{ role: "user", parts: [{ text: "test" }] }],
+        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] }
       });
       return Promise.resolve({
         ok: true,
@@ -44,7 +44,8 @@ describe("ChatService", () => {
   it("throws error when API fails", async () => {
     const fetchMock = () => Promise.reject(new Error("network"));
     const svc = new ChatService(config, fetchMock as any);
-    await expect(svc.improvePrompt("test")).rejects.toThrow("Failed to improve prompt");
+    await expect(svc.improvePrompt("test")).rejects.toThrow("network");
+
   });
 
   it("propagates abort errors", async () => {

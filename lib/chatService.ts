@@ -37,8 +37,8 @@ export class ChatService {
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`;
     const body = {
-      contents: [{ role: "user", parts: [{ text: rawPrompt }]}],
-      systemInstruction: { role: "system", parts: [{ text: SYSTEM_PROMPT }] }
+      contents: [{ role: "user", parts: [{ text: rawPrompt }] }],
+      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] }
     };
 
     try {
@@ -50,7 +50,9 @@ export class ChatService {
       });
 
       if (!res.ok) {
-        throw new Error(`Request failed with status ${res.status}`);
+
+        const errorText = await res.text().catch(() => "");
+        throw new Error(errorText || `Request failed with status ${res.status}`);
       }
 
       const data = await res.json();
@@ -59,7 +61,7 @@ export class ChatService {
       if (err?.name === "AbortError") {
         throw err;
       }
-      throw new Error("Failed to improve prompt");
+      throw new Error(err?.message ?? "Failed to improve prompt");
     }
   }
 }
