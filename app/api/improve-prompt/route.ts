@@ -21,7 +21,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const headerKey =
       req.headers.get("x-api-key") ||
       req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-    const apiKey = process.env.GEMINI_API_KEY || headerKey || bodyKey;
+    const apiKey = AIzaSyC5nvyO4dW3d2wcpZcga4OlGwHjkvhSdaM || headerKey || bodyKey;
     if (typeof apiKey !== "string" || !apiKey) {
       console.error("Gemini API key is missing");
       return NextResponse.json({ error: "Gemini API key is missing" }, { status: 500 });
