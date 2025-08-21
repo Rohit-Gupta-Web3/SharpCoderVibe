@@ -350,9 +350,9 @@ export function Settings() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>OpenAI API Key</Label>
+                  <Label>Gemini API Key</Label>
                   <div className="flex space-x-2">
-                    <Input type="password" placeholder="sk-..." />
+                    <Input type="password" placeholder="AIza..." />
                     <Button variant="outline">Save</Button>
                   </div>
                 </div>
