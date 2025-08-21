@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ChatService } from "@/lib/chatService";
+import { ChatService } from "../../../lib/chatService";
 
 const config = {
-  endpoint: process.env.AZURE_OPENAI_ENDPOINT || "",
-  deployment: process.env.AZURE_OPENAI_DEPLOYMENT || "",
-  apiKey: process.env.AZURE_OPENAI_API_KEY || ""
+  apiKey: process.env.GEMINI_API_KEY || "AIzaSyDfKNJx0wL0IPIw-ONOO4AahEqUBLcmAcw",
+  model: process.env.GEMINI_MODEL || "gemini-pro"
 };
 
 export async function POST(req: NextRequest): Promise<NextResponse> {

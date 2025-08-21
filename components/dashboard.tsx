@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState, useRef } from "react"
+import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
@@ -37,16 +38,42 @@ export function Dashboard() {
   const [dragActive, setDragActive] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { theme, toggleTheme } = useTheme()
+  const { toast } = useToast()
+  const [enhancing, setEnhancing] = useState(false)
 
   const handlePresetClick = (presetPrompt: string) => {
     setPrompt(presetPrompt)
   }
 
-  const handleEnhancePrompt = () => {
-    if (prompt.trim()) {
-      setPrompt(
-        (prev) => `${prev} with modern design, responsive layout, smooth animations, and excellent user experience`,
-      )
+  const handleEnhancePrompt = async () => {
+    if (!prompt.trim() || enhancing) {
+      return
+    }
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 15000)
+    try {
+      setEnhancing(true)
+      const res = await fetch("/api/improve-prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+        signal: controller.signal,
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to enhance prompt")
+      }
+      setPrompt(data.result)
+    } catch (err: any) {
+      const message = err?.name === "AbortError" ? "Request timed out" : err?.message || "Unexpected error"
+      toast({
+        variant: "destructive",
+        title: "Enhance Prompt Failed",
+        description: message,
+      })
+    } finally {
+      clearTimeout(timeout)
+      setEnhancing(false)
     }
   }
 
@@ -136,10 +163,11 @@ export function Dashboard() {
                 <Button
                   variant="outline"
                   onClick={handleEnhancePrompt}
+                  disabled={enhancing || !prompt.trim()}
                   className="flex items-center space-x-2 bg-transparent"
                 >
-                  <Sparkles className="w-4 h-4" />
-                  <span>Enhance Prompt</span>
+                  <Sparkles className={`w-4 h-4 ${enhancing ? "animate-spin" : ""}`} />
+                  <span>{enhancing ? "Enhancing..." : "Enhance Prompt"}</span>
                 </Button>
 
                 <div

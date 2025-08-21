@@ -1,9 +1,6 @@
-import { OpenAIClient, AzureKeyCredential, ChatRequestMessage } from "@azure/openai";
-
-export interface AzureOpenAIConfig {
-  endpoint: string;
-  deployment: string;
+export interface GeminiConfig {
   apiKey: string;
+  model?: string;
 }
 
 export const PLACEHOLDER_RESPONSE = "/* Enter a prompt to improve */";
@@ -22,15 +19,15 @@ export const SYSTEM_PROMPT =
   "Return ONLY the improved, scaffolded final prompt, not the reasoning steps.";
 
 export class ChatService {
-  private readonly client: OpenAIClient;
-  private readonly deployment: string;
+  private readonly apiKey: string;
+  private readonly model: string;
+  private readonly fetchFn: typeof fetch;
 
-  constructor(config: AzureOpenAIConfig, client?: OpenAIClient) {
-    if (!config?.endpoint) throw new Error("Azure OpenAI endpoint is missing.");
-    if (!config.deployment) throw new Error("Azure OpenAI deployment is missing.");
-    if (!config.apiKey) throw new Error("Azure OpenAI API key is missing.");
-    this.deployment = config.deployment;
-    this.client = client ?? new OpenAIClient(config.endpoint, new AzureKeyCredential(config.apiKey));
+  constructor(config: GeminiConfig, fetchFn: typeof fetch = fetch) {
+    if (!config?.apiKey) throw new Error("Gemini API key is missing.");
+    this.apiKey = config.apiKey;
+    this.model = config.model ?? "gemini-pro";
+    this.fetchFn = fetchFn;
   }
 
   async improvePrompt(rawPrompt: string, signal?: AbortSignal): Promise<string> {
@@ -38,23 +35,35 @@ export class ChatService {
       return PLACEHOLDER_RESPONSE;
     }
 
-    const messages: ChatRequestMessage[] = [
-      { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: rawPrompt }
-    ];
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`;
+    const body = {
+      contents: [{ role: "user", parts: [{ text: rawPrompt }] }],
+      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] }
+    };
 
     try {
-      const completion = await this.client.getChatCompletions(this.deployment, messages, {
-        abortSignal: signal
+      const res = await this.fetchFn(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal
       });
-      return completion.choices?.[0]?.message?.content ?? "";
+
+      if (!res.ok) {
+        const errorText = await res.text().catch(() => "");
+        throw new Error(errorText || `Request failed with status ${res.status}`);
+      }
+
+      const data = await res.json();
+      return data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
     } catch (err: any) {
       if (err?.name === "AbortError") {
         throw err;
       }
-      throw new Error("Failed to improve prompt");
+      throw new Error(err?.message ?? "Failed to improve prompt");
     }
   }
 }
 
 export default ChatService;
+
