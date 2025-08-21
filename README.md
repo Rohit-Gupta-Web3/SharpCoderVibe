@@ -25,7 +25,7 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 - **Figma Integration** - Import designs directly from Figma with a dedicated dashboard button
 - **Git Integration** - Connect and sync with GitHub repositories
 - **Profile & Settings** - Comprehensive user management
-- **Authentication** - Email-based signup and login with profile access
+- **Authentication** - Email-based signup and login backed by Firebase with Microsoft Authenticator-based 2FA
 
 ### 🎨 UI/UX Features
 - **Dark/Light Theme** - Toggle between themes with persistent storage
@@ -46,10 +46,11 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 
 ## ✅ Implemented Use Cases
 
-- Users can create accounts via the signup form.
-- Returning users may log in to retrieve their session.
-- Authenticated users can view their profile and adjust personal settings.
-- User credentials persist in a lightweight JSON database with session-based redirects.
+- Users can create accounts with their full name and email.
+- New users must scan a QR code with Microsoft Authenticator to complete signup.
+- Returning users with an active session only supply an authenticator code to log in.
+- Authenticated users can view their profile and adjust personal settings with pre-filled data.
+- User records persist in Firebase with session-based redirects.
 
 ## 🏗 Tech Stack
 

@@ -1,37 +1,21 @@
-import fs from 'fs/promises'
-import path from 'path'
+import { db } from './firebase'
 
 export interface DBUser {
   id: string
   email: string
   password: string
   name?: string
+  totpSecret: string
 }
 
-const DB_PATH = process.env.DB_PATH || path.join(process.cwd(), 'data', 'users.json')
-
-async function readUsers(): Promise<DBUser[]> {
-  try {
-    const raw = await fs.readFile(DB_PATH, 'utf8')
-    return JSON.parse(raw) as DBUser[]
-  } catch (err: any) {
-    if (err.code === 'ENOENT') return []
-    throw err
-  }
-}
-
-async function writeUsers(users: DBUser[]): Promise<void> {
-  await fs.mkdir(path.dirname(DB_PATH), { recursive: true })
-  await fs.writeFile(DB_PATH, JSON.stringify(users), 'utf8')
-}
+const USERS = 'users'
 
 export async function addUser(user: DBUser): Promise<void> {
-  const users = await readUsers()
-  users.push(user)
-  await writeUsers(users)
+  await db.collection(USERS).doc(user.id).set(user)
 }
 
 export async function findUserByEmail(email: string): Promise<DBUser | undefined> {
-  const users = await readUsers()
-  return users.find((u) => u.email === email)
+  const snap = await db.collection(USERS).where('email', '==', email).limit(1).get()
+  if (snap.empty) return undefined
+  return snap.docs[0].data() as DBUser
 }

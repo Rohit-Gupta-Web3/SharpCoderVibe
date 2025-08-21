@@ -8,10 +8,11 @@ import { SignupForm } from '../components/signup-form'
 
 const loginMock = vi.fn()
 const signupMock = vi.fn()
+const verifyMock = vi.fn()
 const pushMock = vi.fn()
 
 vi.mock('../contexts/auth-context', () => ({
-  useAuth: () => ({ login: loginMock, signup: signupMock })
+  useAuth: () => ({ login: loginMock, signup: signupMock, verify: verifyMock })
 }))
 
 vi.mock('next/navigation', () => ({
@@ -24,14 +25,18 @@ describe('Authentication forms', () => {
     vi.clearAllMocks()
   })
 
-  it('logs in user and redirects to profile', async () => {
+  it('logs in user and verifies otp', async () => {
     loginMock.mockResolvedValueOnce(undefined)
+    verifyMock.mockResolvedValueOnce(undefined)
     render(<LoginForm />)
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'a@test.com' } })
     fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'pw' } })
     fireEvent.click(screen.getByRole('button', { name: /login/i }))
     await waitFor(() => expect(loginMock).toHaveBeenCalledWith('a@test.com', 'pw'))
-    expect(pushMock).toHaveBeenCalledWith('/profile')
+    fireEvent.change(screen.getByLabelText(/code/i), { target: { value: '123456' } })
+    fireEvent.click(screen.getByRole('button', { name: /verify/i }))
+    await waitFor(() => expect(verifyMock).toHaveBeenCalledWith('123456'))
+    expect(pushMock).toHaveBeenCalledWith('/')
   })
 
   it('shows login error', async () => {
@@ -44,19 +49,21 @@ describe('Authentication forms', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Invalid credentials')
   })
 
-  it('signs up user and redirects', async () => {
+  it('signs up user and redirects to setup', async () => {
     signupMock.mockResolvedValueOnce(undefined)
     render(<SignupForm />)
+    fireEvent.change(screen.getByLabelText(/full name/i), { target: { value: 'Bob User' } })
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'b@test.com' } })
     fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'pw' } })
     fireEvent.click(screen.getByRole('button', { name: /sign up/i }))
-    await waitFor(() => expect(signupMock).toHaveBeenCalledWith('b@test.com', 'pw'))
-    expect(pushMock).toHaveBeenCalledWith('/profile')
+    await waitFor(() => expect(signupMock).toHaveBeenCalledWith('Bob User', 'b@test.com', 'pw'))
+    expect(pushMock).toHaveBeenCalledWith('/setup')
   })
 
   it('shows signup error', async () => {
     signupMock.mockRejectedValueOnce(new Error('Email already registered'))
     render(<SignupForm />)
+    fireEvent.change(screen.getByLabelText(/full name/i), { target: { value: 'Bob User' } })
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'b@test.com' } })
     fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'pw' } })
     fireEvent.click(screen.getByRole('button', { name: /sign up/i }))

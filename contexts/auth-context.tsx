@@ -1,12 +1,20 @@
 "use client"
 
 import { createContext, useContext, useState, ReactNode } from 'react'
-import { login as loginSvc, signup as signupSvc, logout as logoutSvc, getCurrentUser, User } from '@/lib/auth'
+import {
+  login as loginSvc,
+  signup as signupSvc,
+  verify as verifySvc,
+  logout as logoutSvc,
+  getCurrentUser,
+  User,
+} from '@/lib/auth'
 
 interface AuthContextValue {
   user: User | null
   login: (email: string, password: string) => Promise<void>
-  signup: (email: string, password: string) => Promise<void>
+  signup: (name: string, email: string, password: string) => Promise<void>
+  verify: (token: string) => Promise<void>
   logout: () => void
 }
 
@@ -16,12 +24,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(getCurrentUser())
 
   const login = async (email: string, password: string) => {
-    const u = await loginSvc(email, password)
-    setUser(u)
+    await loginSvc(email, password)
   }
 
-  const signup = async (email: string, password: string) => {
-    const u = await signupSvc(email, password)
+  const signup = async (name: string, email: string, password: string) => {
+    await signupSvc(name, email, password)
+  }
+
+  const verify = async (token: string) => {
+    const u = await verifySvc(token)
     setUser(u)
   }
 
@@ -31,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, login, signup, verify, logout }}>
       {children}
     </AuthContext.Provider>
   )

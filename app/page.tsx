@@ -55,8 +55,12 @@ export default function App() {
     const token = localStorage.getItem('scv_token')
     const email = localStorage.getItem('scv_user_email')
     const exp = localStorage.getItem('scv_token_expiry')
-    if (!token || !email) {
+    if (!email) {
       router.replace('/signup')
+      return
+    }
+    if (!token) {
+      router.replace('/login')
       return
     }
     if (!exp || Number(exp) < Date.now()) {

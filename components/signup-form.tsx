@@ -7,11 +7,13 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
 import Link from 'next/link'
+import { getStoredEmail, getStoredName } from '@/lib/auth'
 
 export function SignupForm() {
   const { signup } = useAuth()
   const router = useRouter()
-  const [email, setEmail] = useState('')
+  const [name, setName] = useState(getStoredName() || '')
+  const [email, setEmail] = useState(getStoredEmail() || '')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -21,8 +23,8 @@ export function SignupForm() {
     setError(null)
     setLoading(true)
     try {
-      await signup(email, password)
-      router.push('/profile')
+      await signup(name, email, password)
+      router.push('/setup')
     } catch (err: any) {
       setError(err.message || 'Signup failed')
     } finally {
@@ -37,6 +39,16 @@ export function SignupForm() {
           <CardTitle>Sign Up</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <label htmlFor="name" className="text-sm font-medium">Full Name</label>
+            <Input
+              id="name"
+              autoComplete="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium">Email</label>
             <Input

@@ -7,23 +7,27 @@ export interface User {
 const CURRENT_USER_KEY = 'scv_current_user'
 const TOKEN_KEY = 'scv_token'
 const EMAIL_KEY = 'scv_user_email'
+const NAME_KEY = 'scv_user_name'
 const EXP_KEY = 'scv_token_expiry'
+
+export function setPending(email: string, name?: string): void {
+  if (typeof localStorage === 'undefined') return
+  localStorage.setItem(EMAIL_KEY, email)
+  if (name) localStorage.setItem(NAME_KEY, name)
+  localStorage.setItem(EXP_KEY, String(Date.now() + 60 * 60 * 1000))
+}
 
 export function setSession(user: User): void {
   if (typeof localStorage === 'undefined') return
+  setPending(user.email, user.name)
   const token = crypto.randomUUID()
-  const expires = Date.now() + 60 * 60 * 1000
   localStorage.setItem(TOKEN_KEY, token)
-  localStorage.setItem(EMAIL_KEY, user.email)
-  localStorage.setItem(EXP_KEY, String(expires))
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user))
 }
 
 export function logout(): void {
   if (typeof localStorage === 'undefined') return
   localStorage.removeItem(TOKEN_KEY)
-  localStorage.removeItem(EMAIL_KEY)
-  localStorage.removeItem(EXP_KEY)
   localStorage.removeItem(CURRENT_USER_KEY)
 }
 
@@ -36,5 +40,15 @@ export function getCurrentUser(): User | null {
     return null
   }
   const raw = localStorage.getItem(CURRENT_USER_KEY)
-  return raw ? (JSON.parse(raw) as User) : { id: '', email }
+  return raw ? (JSON.parse(raw) as User) : { id: '', email, name: localStorage.getItem(NAME_KEY) || undefined }
+}
+
+export function getStoredEmail(): string | null {
+  if (typeof localStorage === 'undefined') return null
+  return localStorage.getItem(EMAIL_KEY)
+}
+
+export function getStoredName(): string | null {
+  if (typeof localStorage === 'undefined') return null
+  return localStorage.getItem(NAME_KEY)
 }

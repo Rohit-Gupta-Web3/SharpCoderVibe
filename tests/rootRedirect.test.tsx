@@ -21,6 +21,12 @@ describe('landing page redirects', () => {
     await waitFor(() => expect(replaceMock).toHaveBeenCalledWith('/signup'))
   })
 
+  it('redirects to login when email stored but no token', async () => {
+    localStorage.setItem('scv_user_email', 'a@test.com')
+    render(<Home />)
+    await waitFor(() => expect(replaceMock).toHaveBeenCalledWith('/login'))
+  })
+
   it('redirects to login when expired', async () => {
     localStorage.setItem('scv_token', 't')
     localStorage.setItem('scv_user_email', 'a@test.com')
