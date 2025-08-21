@@ -1,11 +1,17 @@
 /** @vitest-environment jsdom */
 
 import { describe, it, expect, beforeEach } from 'vitest'
+import path from 'node:path'
+import { tmpdir } from 'node:os'
+import { promises as fs } from 'node:fs'
+
+process.env.DB_PATH = path.join(tmpdir(), 'auth-test-users.json')
 import { signup, login, logout, getCurrentUser } from '../lib/auth'
 
 describe('auth service', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     localStorage.clear()
+    await fs.rm(process.env.DB_PATH!, { force: true })
   })
 
   it('signs up and logs in user', async () => {

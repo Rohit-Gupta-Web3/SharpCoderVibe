@@ -31,3 +31,11 @@ This directory contains unit tests for the Next.js Gemini integration.
 - `authFlow.test.tsx` exercises the login and signup forms ensuring:
   - successful form submission triggers navigation
   - authentication errors surface to the user
+- `db.test.ts` verifies the lightweight file-based database by:
+  - persisting users to disk
+  - retrieving users by email
+- `rootRedirect.test.tsx` ensures the landing page redirects based on session state:
+  - missing credentials route to signup
+  - expired sessions redirect to login
+  - valid sessions show the dashboard
+

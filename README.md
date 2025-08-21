@@ -49,6 +49,7 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 - Users can create accounts via the signup form.
 - Returning users may log in to retrieve their session.
 - Authenticated users can view their profile and adjust personal settings.
+- User credentials persist in a lightweight JSON database with session-based redirects.
 
 ## 🏗 Tech Stack
 
