@@ -1,9 +1,9 @@
 /** @vitest-environment jsdom */
 
 import { describe, it, expect, beforeEach } from 'vitest'
-import path from 'node:path'
-import { tmpdir } from 'node:os'
-import { promises as fs } from 'node:fs'
+import path from 'path'
+import { tmpdir } from 'os'
+import fs from 'fs/promises'
 
 process.env.DB_PATH = path.join(tmpdir(), 'auth-test-users.json')
 import { signup, login, logout, getCurrentUser } from '../lib/auth'

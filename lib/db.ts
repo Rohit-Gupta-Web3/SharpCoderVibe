@@ -1,5 +1,5 @@
-import { promises as fs } from 'node:fs'
-import path from 'node:path'
+import fs from 'fs/promises'
+import path from 'path'
 
 export interface DBUser {
   id: string
