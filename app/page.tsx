@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { ThemeProvider } from "../contexts/theme-context"
 import { Sidebar } from "../components/sidebar"
 import { Dashboard } from "../components/dashboard"
@@ -47,6 +48,26 @@ function AppContent() {
 }
 
 export default function App() {
+  const router = useRouter()
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    const token = localStorage.getItem('scv_token')
+    const email = localStorage.getItem('scv_user_email')
+    const exp = localStorage.getItem('scv_token_expiry')
+    if (!token || !email) {
+      router.replace('/signup')
+      return
+    }
+    if (!exp || Number(exp) < Date.now()) {
+      router.replace('/login')
+      return
+    }
+    setReady(true)
+  }, [router])
+
+  if (!ready) return null
+
   return (
     <ThemeProvider>
       <AppContent />

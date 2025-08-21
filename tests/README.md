@@ -23,3 +23,10 @@ This directory contains unit tests for the Next.js Gemini integration.
 - `dashboard.test.tsx` confirms the dashboard:
   - displays the "Create an Application" preset
   - routes to the Figma import screen when the import button is clicked
+- `authFlow.test.tsx` exercises the login and signup forms ensuring:
+  - successful form submission triggers navigation
+  - authentication errors surface to the user
+- `rootRedirect.test.tsx` ensures the landing page redirects based on session state:
+  - missing credentials route to signup
+  - expired sessions redirect to login
+  - valid sessions show the dashboard
