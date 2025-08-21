@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useAuth } from '@/contexts/auth-context'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -28,6 +29,7 @@ import {
 } from "lucide-react"
 
 export function ProfileSettings() {
+  const { user } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [notifications, setNotifications] = useState({
     email: true,
@@ -37,16 +39,16 @@ export function ProfileSettings() {
   })
 
   const [profile, setProfile] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-    phone: "+1 (555) 123-4567",
-    location: "San Francisco, CA",
-    bio: "Full-stack developer passionate about creating amazing user experiences with modern web technologies.",
-    website: "https://johndoe.dev",
-    github: "johndoe",
-    twitter: "@johndoe",
-    linkedin: "johndoe",
+    firstName: user?.name?.split(' ')[0] || '',
+    lastName: user?.name?.split(' ').slice(1).join(' ') || '',
+    email: user?.email || '',
+    phone: '',
+    location: '',
+    bio: '',
+    website: '',
+    github: '',
+    twitter: '',
+    linkedin: '',
   })
 
   const handleProfileUpdate = (field: string, value: string) => {
