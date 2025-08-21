@@ -25,6 +25,7 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 - **Figma Integration** - Import designs directly from Figma with a dedicated dashboard button
 - **Git Integration** - Connect and sync with GitHub repositories
 - **Profile & Settings** - Comprehensive user management
+- **Authentication** - Email-based signup and login with profile access
 
 ### 🎨 UI/UX Features
 - **Dark/Light Theme** - Toggle between themes with persistent storage
@@ -42,6 +43,13 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 - **File Upload** - Drag & drop screenshot support
 - **Real-time Preview** - Live code preview and generation
  - **Prompt Improvement Service** - Next.js API leveraging Google Gemini for scaffolded prompt refinement
+
+## ✅ Implemented Use Cases
+
+- Users can create accounts via the signup form.
+- Returning users may log in to retrieve their session.
+- Authenticated users can view their profile and adjust personal settings.
+- User credentials persist in a lightweight JSON database with session-based redirects.
 
 ## 🏗 Tech Stack
 
