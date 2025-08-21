@@ -1,7 +1,7 @@
 import crypto from 'crypto'
 import { authenticator } from 'otplib'
 import { addUser, findUserByEmail } from './db'
-import { User } from './session'
+import type { User } from './session'
 
 export async function signup(name: string, email: string, password: string): Promise<{ user: User; otpauth: string }> {
   const existing = await findUserByEmail(email)

@@ -7,8 +7,8 @@ import {
   verify as verifySvc,
   logout as logoutSvc,
   getCurrentUser,
-  User,
 } from '@/lib/auth'
+import type { User } from '@/lib/auth'
 
 interface AuthContextValue {
   user: User | null

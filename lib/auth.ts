@@ -1,5 +1,4 @@
 import {
-  User,
   setSession,
   logout,
   getCurrentUser,
@@ -7,8 +6,10 @@ import {
   getStoredEmail,
   getStoredName,
 } from './session'
+import type { User } from './session'
 
-export { logout, getCurrentUser, User, getStoredEmail, getStoredName }
+export { logout, getCurrentUser, getStoredEmail, getStoredName }
+export type { User }
 
 async function clientRequest(path: string, data: any, signal?: AbortSignal): Promise<any> {
   const res = await fetch(path, {
