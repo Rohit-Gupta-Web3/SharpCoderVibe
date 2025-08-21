@@ -50,14 +50,27 @@ export class ChatService {
       });
 
       if (!res.ok) {
-
-        const errorText = await res.text().catch(() => "");
-        throw new Error(errorText || `Request failed with status ${res.status}`);
+        let message = `Request failed with status ${res.status}`;
+        const text = await res.text().catch(() => "");
+        if (text) {
+          try {
+            const json = JSON.parse(text);
+            const detail = json?.error?.message ?? json?.error ?? json;
+            if (detail) {
+              message += `: ${typeof detail === "string" ? detail : JSON.stringify(detail)}`;
+            }
+          } catch {
+            message += `: ${text}`;
+          }
+        }
+        console.error("Gemini API error", message);
+        throw new Error(message);
       }
 
       const data = await res.json();
       return data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
     } catch (err: any) {
+      console.error("ChatService.improvePrompt failed", err);
       if (err?.name === "AbortError") {
         throw err;
       }

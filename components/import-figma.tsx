@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -172,9 +173,11 @@ export function ImportFigma() {
                   <Card key={project.id}>
                     <CardContent className="p-6">
                       <div className="flex items-start space-x-4">
-                        <img
+                        <Image
                           src={project.thumbnail || "/placeholder.svg"}
                           alt={project.name}
+                          width={128}
+                          height={80}
                           className="w-32 h-20 object-cover rounded-lg border"
                         />
                         <div className="flex-1">
