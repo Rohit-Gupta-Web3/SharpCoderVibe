@@ -57,7 +57,7 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 
 Sharp Coder includes a Next.js API route that connects to Google Gemini for prompt enhancement. The service rewrites user prompts using an eight-step scaffold to clarify intent, surface context, enumerate constraints, and ensure coherent outputs. Source code lives in `lib/chatService.ts` with an accompanying route handler at `app/api/improve-prompt/route.ts`. Unit tests reside in `tests/` to validate normal usage, error conditions, and request timeouts.
 
-To use the service you must supply a valid Gemini API key either via the `GEMINI_API_KEY` environment variable or by sending an `x-api-key` header with your request. The route responds with clear errors for common issues:
+To use the service you must supply a valid Gemini API key via the `GEMINI_API_KEY` environment variable, an `x-api-key` header, or an `apiKey` property in the request body. You can optionally specify `GEMINI_MODEL` (default `gemini-2.5-flash`). Requests abort after `GEMINI_TIMEOUT_MS` milliseconds (default `60000`) to protect the server from hanging. The route responds with clear errors for common issues:
 
 - `400` for malformed JSON payloads
 - `400` when `prompt` is missing or not a string
@@ -134,6 +134,8 @@ Add your environment variables:
 \`\`\`env
 # Optional: Add your API keys here
 GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-2.5-flash
+GEMINI_TIMEOUT_MS=60000
 ANTHROPIC_API_KEY=your_anthropic_api_key_here
 GITHUB_TOKEN=your_github_token_here
 FIGMA_TOKEN=your_figma_token_here

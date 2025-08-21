@@ -68,6 +68,7 @@ export class ChatService {
       }
 
       const data = await res.json();
+      console.log("Gemini API response", data);
       return data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
     } catch (err: any) {
       console.error("ChatService.improvePrompt failed", err);
