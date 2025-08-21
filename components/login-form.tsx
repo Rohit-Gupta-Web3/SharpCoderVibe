@@ -45,6 +45,7 @@ export function LoginForm() {
       }
     } catch (err: any) {
       setError(err.message || (stage === 'credentials' ? 'Login failed' : 'Verification failed'))
+
     } finally {
       setLoading(false)
     }
