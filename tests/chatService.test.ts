@@ -45,6 +45,7 @@ describe("ChatService", () => {
     const fetchMock = () => Promise.reject(new Error("network"));
     const svc = new ChatService(config, fetchMock as any);
     await expect(svc.improvePrompt("test")).rejects.toThrow("network");
+
   });
 
   it("propagates abort errors", async () => {

@@ -50,6 +50,7 @@ export class ChatService {
       });
 
       if (!res.ok) {
+
         const errorText = await res.text().catch(() => "");
         throw new Error(errorText || `Request failed with status ${res.status}`);
       }
