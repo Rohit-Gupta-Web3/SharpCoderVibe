@@ -11,17 +11,21 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
 
-    const { prompt } = body || {};
+    const { prompt, apiKey: bodyKey } = body || {};
+
     if (typeof prompt !== "string") {
       console.error("Prompt must be a string", { prompt });
       return NextResponse.json({ error: "Prompt must be a string" }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      console.error("GEMINI_API_KEY is not set");
+    const headerKey =
+      req.headers.get("x-api-key") ||
+      req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+    const apiKey = process.env.GEMINI_API_KEY || headerKey || bodyKey;
+    if (typeof apiKey !== "string" || !apiKey) {
+      console.error("Gemini API key is missing");
+      return NextResponse.json({ error: "Gemini API key is missing" }, { status: 500 });
 
-      return NextResponse.json({ error: "GEMINI_API_KEY is not set" }, { status: 500 });
     }
 
     const config = {

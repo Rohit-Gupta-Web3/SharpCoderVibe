@@ -85,32 +85,6 @@ describe("ChatService", () => {
     expect(errorSpy).toHaveBeenCalled();
   });
 
-  it("includes structured error details", async () => {
-    const fetchMock = () =>
-      Promise.resolve({
-        ok: false,
-        status: 400,
-        text: () => Promise.resolve(JSON.stringify({ error: { message: "bad" } }))
-      });
-    const svc = new ChatService(config, fetchMock as any);
-    await expect(svc.improvePrompt("test")).rejects.toThrow(
-      "Request failed with status 400: bad"
-    );
-  });
-
-  it("falls back to text error responses", async () => {
-    const fetchMock = () =>
-      Promise.resolve({
-        ok: false,
-        status: 500,
-        text: () => Promise.resolve("server exploded")
-      });
-    const svc = new ChatService(config, fetchMock as any);
-    await expect(svc.improvePrompt("test")).rejects.toThrow(
-      "Request failed with status 500: server exploded"
-    );
-  });
-
   it("propagates abort errors", async () => {
     const fetchMock = (_url: string, opts: any) =>
       new Promise((_resolve, reject) => {

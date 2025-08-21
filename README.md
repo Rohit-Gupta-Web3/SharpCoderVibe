@@ -1,8 +1,9 @@
 # Sharp Coder - AI-Powered Coding Platform
 
 <div align="center">
-  <img src="public/images/sharp-coder-landing.png" alt="Sharp Coder Logo" width="200"/>
-  
+
+![Sharp Coder Logo](public/images/sharp-coder-landing.png)
+
   [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.0-38B2AC)](https://tailwindcss.com/)
@@ -56,11 +57,11 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 
 Sharp Coder includes a Next.js API route that connects to Google Gemini for prompt enhancement. The service rewrites user prompts using an eight-step scaffold to clarify intent, surface context, enumerate constraints, and ensure coherent outputs. Source code lives in `lib/chatService.ts` with an accompanying route handler at `app/api/improve-prompt/route.ts`. Unit tests reside in `tests/` to validate normal usage, error conditions, and request timeouts.
 
-To use the service you must supply a valid `GEMINI_API_KEY` environment variable. The route responds with clear errors for common issues:
+To use the service you must supply a valid Gemini API key either via the `GEMINI_API_KEY` environment variable or by sending an `x-api-key` header with your request. The route responds with clear errors for common issues:
 
 - `400` for malformed JSON payloads
 - `400` when `prompt` is missing or not a string
-- `500` if `GEMINI_API_KEY` is not set
+- `500` if the Gemini API key is missing
 - `500` with upstream Gemini status codes and messages when the external API fails
 
 ## 📋 Prerequisites

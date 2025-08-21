@@ -91,7 +91,7 @@ describe("improve-prompt API route", () => {
      expect(errorSpy).toHaveBeenCalled();
   });
 
-  it("returns error when GEMINI_API_KEY is missing", async () => {
+  it("returns error when API key is missing", async () => {
     delete process.env.GEMINI_API_KEY;
     const req = new NextRequest(
       new Request("http://test", {
@@ -101,32 +101,23 @@ describe("improve-prompt API route", () => {
     );
     const res = await POST(req);
     expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ error: "GEMINI_API_KEY is not set" });
+    expect(await res.json()).toEqual({ error: "Gemini API key is missing" });
     expect(errorSpy).toHaveBeenCalled();
   });
 
-  it("returns 400 for invalid JSON", async () => {
-    const req = new NextRequest(
-      new Request("http://test", {
-        method: "POST",
-        body: "{ invalid",
-      }),
-    );
-    const res = await POST(req);
-    expect(res.status).toBe(400);
-    expect(await res.json()).toEqual({ error: "Invalid JSON body" });
-  });
-
-  it("returns error when GEMINI_API_KEY is missing", async () => {
+  it("accepts API key from header when env var is absent", async () => {
     delete process.env.GEMINI_API_KEY;
+    improvePromptMock.mockResolvedValueOnce("header-better");
+    
     const req = new NextRequest(
       new Request("http://test", {
         method: "POST",
         body: JSON.stringify({ prompt: "test" }),
+        headers: { "x-api-key": "header-key" },
       }),
     );
     const res = await POST(req);
-    expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ error: "GEMINI_API_KEY is not set" });
-  });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ result: "header-better" });
+    expect(errorSpy).not.toHaveBeenCalled();
 });
