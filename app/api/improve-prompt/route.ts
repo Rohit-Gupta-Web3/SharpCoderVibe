@@ -1,17 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ChatService } from "../../../lib/chatService";
 
-const config = {
-  apiKey: process.env.GEMINI_API_KEY || "AIzaSyDfKNJx0wL0IPIw-ONOO4AahEqUBLcmAcw",
-  model: process.env.GEMINI_MODEL || "gemini-pro"
-};
-
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const { prompt } = await req.json();
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
+
+    const { prompt } = body || {};
     if (typeof prompt !== "string") {
       return NextResponse.json({ error: "Prompt must be a string" }, { status: 400 });
     }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json({ error: "GEMINI_API_KEY is not set" }, { status: 500 });
+    }
+
+    const config = {
+      apiKey,
+      model: process.env.GEMINI_MODEL || "gemini-pro",
+    };
+
     const service = new ChatService(config);
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
@@ -26,3 +39,4 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+

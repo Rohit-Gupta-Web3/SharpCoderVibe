@@ -50,9 +50,20 @@ export class ChatService {
       });
 
       if (!res.ok) {
-
-        const errorText = await res.text().catch(() => "");
-        throw new Error(errorText || `Request failed with status ${res.status}`);
+        let message = `Request failed with status ${res.status}`;
+        const text = await res.text().catch(() => "");
+        if (text) {
+          try {
+            const json = JSON.parse(text);
+            const detail = json?.error?.message ?? json?.error ?? json;
+            if (detail) {
+              message += `: ${typeof detail === "string" ? detail : JSON.stringify(detail)}`;
+            }
+          } catch {
+            message += `: ${text}`;
+          }
+        }
+        throw new Error(message);
       }
 
       const data = await res.json();

@@ -10,6 +10,7 @@ import { POST } from "../app/api/improve-prompt/route";
 
 beforeEach(() => {
   improvePromptMock.mockReset();
+  process.env.GEMINI_API_KEY = "test-key";
 });
 
 describe("improve-prompt API route", () => {
@@ -64,5 +65,30 @@ describe("improve-prompt API route", () => {
     const res = await POST(req);
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: "Request timed out" });
+  });
+
+  it("returns 400 for invalid JSON", async () => {
+    const req = new NextRequest(
+      new Request("http://test", {
+        method: "POST",
+        body: "{ invalid",
+      }),
+    );
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "Invalid JSON body" });
+  });
+
+  it("returns error when GEMINI_API_KEY is missing", async () => {
+    delete process.env.GEMINI_API_KEY;
+    const req = new NextRequest(
+      new Request("http://test", {
+        method: "POST",
+        body: JSON.stringify({ prompt: "test" }),
+      }),
+    );
+    const res = await POST(req);
+    expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({ error: "GEMINI_API_KEY is not set" });
   });
 });
