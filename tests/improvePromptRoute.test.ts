@@ -6,6 +6,8 @@ vi.mock("../lib/chatService", () => ({
   ChatService: vi.fn(() => ({ improvePrompt: improvePromptMock })),
 }));
 
+import { ChatService } from "../lib/chatService";
+
 import { POST } from "../app/api/improve-prompt/route";
 
 let errorSpy: ReturnType<typeof vi.spyOn>;
@@ -13,6 +15,8 @@ let errorSpy: ReturnType<typeof vi.spyOn>;
 beforeEach(() => {
   improvePromptMock.mockReset();
   process.env.GEMINI_API_KEY = "test-key";
+  delete process.env.GEMINI_MODEL;
+  vi.mocked(ChatService).mockClear();
   errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
@@ -120,4 +124,46 @@ describe("improve-prompt API route", () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ result: "header-better" });
     expect(errorSpy).not.toHaveBeenCalled();
+  });
+
+  it("accepts API key from request body when header and env are absent", async () => {
+    delete process.env.GEMINI_API_KEY;
+    improvePromptMock.mockResolvedValueOnce("body-better");
+
+    const req = new NextRequest(
+      new Request("http://test", {
+        method: "POST",
+        body: JSON.stringify({ prompt: "test", apiKey: "body-key" }),
+      }),
+    );
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ result: "body-better" });
+    expect(errorSpy).not.toHaveBeenCalled();
+  });
+
+  it("passes GEMINI_MODEL env var to ChatService", async () => {
+    process.env.GEMINI_MODEL = "custom-model";
+    improvePromptMock.mockResolvedValueOnce("better");
+    const req = new NextRequest(
+      new Request("http://test", {
+        method: "POST",
+        body: JSON.stringify({ prompt: "test" }),
+      }),
+    );
+    await POST(req);
+    expect(ChatService).toHaveBeenCalledWith({ apiKey: "test-key", model: "custom-model" });
+  });
+
+  it("uses default model when GEMINI_MODEL is unset", async () => {
+    improvePromptMock.mockResolvedValueOnce("better");
+    const req = new NextRequest(
+      new Request("http://test", {
+        method: "POST",
+        body: JSON.stringify({ prompt: "test" }),
+      }),
+    );
+    await POST(req);
+    expect(ChatService).toHaveBeenCalledWith({ apiKey: "test-key", model: "gemini-2.5-flash" });
+  });
 });

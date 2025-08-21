@@ -15,3 +15,5 @@ This directory contains unit tests for the Next.js Gemini integration.
   - timeout abort handling
   - invalid JSON bodies
   - missing API key and header-based key usage
+  - API key provided in the request body
+  - model selection via `GEMINI_MODEL`

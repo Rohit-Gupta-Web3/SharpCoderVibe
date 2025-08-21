@@ -21,11 +21,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const headerKey =
       req.headers.get("x-api-key") ||
       req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-    const apiKey = "AIzaSyC5nvyO4dW3d2wcpZcga4OlGwHjkvhSdaM" || headerKey || bodyKey;
+    const apiKey = process.env.GEMINI_API_KEY || headerKey || bodyKey;
     if (typeof apiKey !== "string" || !apiKey) {
       console.error("Gemini API key is missing");
       return NextResponse.json({ error: "Gemini API key is missing" }, { status: 500 });
-
     }
 
     const config = {
@@ -35,7 +34,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const service = new ChatService(config);
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    const timeoutMs = Number(process.env.GEMINI_TIMEOUT_MS) || 60000;
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
     try {
       const result = await service.improvePrompt(prompt, controller.signal);
       return NextResponse.json({ result });
