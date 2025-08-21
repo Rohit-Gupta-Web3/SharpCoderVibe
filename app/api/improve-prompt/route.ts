@@ -12,6 +12,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     const { prompt, apiKey: bodyKey } = body || {};
+
     if (typeof prompt !== "string") {
       console.error("Prompt must be a string", { prompt });
       return NextResponse.json({ error: "Prompt must be a string" }, { status: 400 });
@@ -24,6 +25,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (typeof apiKey !== "string" || !apiKey) {
       console.error("Gemini API key is missing");
       return NextResponse.json({ error: "Gemini API key is missing" }, { status: 500 });
+
     }
 
     const config = {

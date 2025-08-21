@@ -108,6 +108,7 @@ describe("improve-prompt API route", () => {
   it("accepts API key from header when env var is absent", async () => {
     delete process.env.GEMINI_API_KEY;
     improvePromptMock.mockResolvedValueOnce("header-better");
+    
     const req = new NextRequest(
       new Request("http://test", {
         method: "POST",
@@ -119,5 +120,4 @@ describe("improve-prompt API route", () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ result: "header-better" });
     expect(errorSpy).not.toHaveBeenCalled();
-  });
 });
