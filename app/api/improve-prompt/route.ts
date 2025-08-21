@@ -30,7 +30,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const config = {
       apiKey,
-      model: process.env.GEMINI_MODEL || "gemini-pro",
+      model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
     };
 
     const service = new ChatService(config);
