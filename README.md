@@ -39,6 +39,7 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 - **State Management** - Context API for theme and app state
 - **File Upload** - Drag & drop screenshot support
 - **Real-time Preview** - Live code preview and generation
+ - **Prompt Improvement Service** - Next.js API leveraging Azure OpenAI for scaffolded prompt refinement
 
 ## 🏗 Tech Stack
 
@@ -49,6 +50,10 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 - **Icons**: [Lucide React](https://lucide.dev/)
 - **State Management**: React Context API
 - **Package Manager**: npm/yarn/pnpm
+
+## 🧠 Prompt Improvement Service
+
+Sharp Coder includes a Next.js API route that connects to Azure OpenAI for prompt enhancement. The service rewrites user prompts using an eight-step scaffold to clarify intent, surface context, enumerate constraints, and ensure coherent outputs. Source code lives in `lib/chatService.ts` with an accompanying route handler at `app/api/improve-prompt/route.ts`. Unit tests reside in `tests/` to validate normal usage, error conditions, and request timeouts.
 
 ## 📋 Prerequisites
 
