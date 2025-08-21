@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 
 const improvePromptMock = vi.fn();
@@ -8,9 +8,16 @@ vi.mock("../lib/chatService", () => ({
 
 import { POST } from "../app/api/improve-prompt/route";
 
+let errorSpy: ReturnType<typeof vi.spyOn>;
+
 beforeEach(() => {
   improvePromptMock.mockReset();
   process.env.GEMINI_API_KEY = "test-key";
+  errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  errorSpy.mockRestore();
 });
 
 describe("improve-prompt API route", () => {
@@ -25,6 +32,7 @@ describe("improve-prompt API route", () => {
     const res = await POST(req);
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ result: "better" });
+    expect(errorSpy).not.toHaveBeenCalled();
   });
 
   it("validates prompt type", async () => {
@@ -37,6 +45,7 @@ describe("improve-prompt API route", () => {
     const res = await POST(req);
     expect(res.status).toBe(400);
     expect(await res.json()).toEqual({ error: "Prompt must be a string" });
+    expect(errorSpy).toHaveBeenCalled();
   });
 
   it("handles service errors", async () => {
@@ -50,6 +59,7 @@ describe("improve-prompt API route", () => {
     const res = await POST(req);
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: "boom" });
+    expect(errorSpy).toHaveBeenCalled();
   });
 
   it("handles timeout aborts", async () => {
@@ -65,6 +75,34 @@ describe("improve-prompt API route", () => {
     const res = await POST(req);
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: "Request timed out" });
+    expect(errorSpy).toHaveBeenCalled();
+  });
+
+  it("returns 400 for invalid JSON", async () => {
+    const req = new NextRequest(
+      new Request("http://test", {
+        method: "POST",
+        body: "{ invalid",
+      }),
+    );
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "Invalid JSON body" });
+     expect(errorSpy).toHaveBeenCalled();
+  });
+
+  it("returns error when GEMINI_API_KEY is missing", async () => {
+    delete process.env.GEMINI_API_KEY;
+    const req = new NextRequest(
+      new Request("http://test", {
+        method: "POST",
+        body: JSON.stringify({ prompt: "test" }),
+      }),
+    );
+    const res = await POST(req);
+    expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({ error: "GEMINI_API_KEY is not set" });
+    expect(errorSpy).toHaveBeenCalled();
   });
 
   it("returns 400 for invalid JSON", async () => {

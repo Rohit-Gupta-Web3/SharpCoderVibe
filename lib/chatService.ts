@@ -63,12 +63,14 @@ export class ChatService {
             message += `: ${text}`;
           }
         }
+        console.error("Gemini API error", message);
         throw new Error(message);
       }
 
       const data = await res.json();
       return data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
     } catch (err: any) {
+      console.error("ChatService.improvePrompt failed", err);
       if (err?.name === "AbortError") {
         throw err;
       }
