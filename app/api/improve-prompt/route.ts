@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ChatService } from "@/lib/chatService";
+import { ChatService } from "../../../lib/chatService";
 
 const config = {
   apiKey: process.env.GEMINI_API_KEY || "AIzaSyDfKNJx0wL0IPIw-ONOO4AahEqUBLcmAcw",
