@@ -5,31 +5,31 @@ import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Palette } from "lucide-react"
 
-const colorPalettes = [
+export const colorPalettes = [
   {
-    name: "Ocean Blue",
-    colors: ["#0ea5e9", "#0284c7", "#0369a1", "#1e40af", "#1e3a8a"],
-    code: "#0ea5e9, #0284c7, #0369a1, #1e40af, #1e3a8a",
+    name: "Ocean Breeze",
+    colors: ["#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"],
+    code: "#264653, #2A9D8F, #E9C46A, #F4A261, #E76F51",
   },
   {
-    name: "Forest Green",
-    colors: ["#10b981", "#059669", "#047857", "#065f46", "#064e3b"],
-    code: "#10b981, #059669, #047857, #065f46, #064e3b",
+    name: "Sunset Pop",
+    colors: ["#FFBE0B", "#FB5607", "#FF006E", "#8338EC", "#3A86FF"],
+    code: "#FFBE0B, #FB5607, #FF006E, #8338EC, #3A86FF",
   },
   {
-    name: "Sunset Orange",
-    colors: ["#f97316", "#ea580c", "#dc2626", "#b91c1c", "#991b1b"],
-    code: "#f97316, #ea580c, #dc2626, #b91c1c, #991b1b",
+    name: "Pastel Dream",
+    colors: ["#FFADAD", "#FFD6A5", "#FDFFB6", "#CAFFBF", "#9BF6FF"],
+    code: "#FFADAD, #FFD6A5, #FDFFB6, #CAFFBF, #9BF6FF",
   },
   {
-    name: "Purple Dream",
-    colors: ["#a855f7", "#9333ea", "#7c3aed", "#6d28d9", "#5b21b6"],
-    code: "#a855f7, #9333ea, #7c3aed, #6d28d9, #5b21b6",
+    name: "Fresh Mint",
+    colors: ["#06D6A0", "#1B9AAA", "#EF476F", "#FFC43D", "#393E41"],
+    code: "#06D6A0, #1B9AAA, #EF476F, #FFC43D, #393E41",
   },
   {
-    name: "Rose Gold",
-    colors: ["#f43f5e", "#e11d48", "#be123c", "#9f1239", "#881337"],
-    code: "#f43f5e, #e11d48, #be123c, #9f1239, #881337",
+    name: "Lavender Bliss",
+    colors: ["#BDE0FE", "#A2D2FF", "#FFAFCC", "#FFC8DD", "#CDB4DB"],
+    code: "#BDE0FE, #A2D2FF, #FFAFCC, #FFC8DD, #CDB4DB",
   },
 ]
 
@@ -53,7 +53,7 @@ export function ColorPaletteSelector({ onSelect }: ColorPaletteSelectorProps) {
           <span>Select Colors</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80">
+      <PopoverContent className="w-80 max-h-60 overflow-y-auto">
         <div className="space-y-3">
           <h3 className="font-medium text-sm">Choose Color Palette</h3>
           {colorPalettes.map((palette) => (
