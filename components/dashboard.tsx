@@ -2,12 +2,12 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
-import { Send, Sparkles, Upload, ImageIcon, Home, ShoppingCart, MessageCircle, Moon, Sun } from "lucide-react"
+import { Send, Sparkles, ImageIcon, Home, ShoppingCart, MessageCircle, Moon, Sun, Figma } from "lucide-react"
 import { ColorPaletteSelector } from "./color-palette-selector"
 import { LayoutSelector } from "./layout-selector"
 import { useTheme } from "../contexts/theme-context"
@@ -21,7 +21,7 @@ const presetPrompts = [
   },
   {
     icon: MessageCircle,
-    title: "Create a Chat UI",
+    title: "Create an Application",
     description: "Build a real-time chat interface",
     prompt: "Create a chat user interface with real-time messaging capabilities",
   },
@@ -33,10 +33,13 @@ const presetPrompts = [
   },
 ]
 
-export function Dashboard() {
+interface DashboardProps {
+  onImportFigma: () => void
+}
+
+export function Dashboard({ onImportFigma }: DashboardProps) {
   const [prompt, setPrompt] = useState("")
   const [dragActive, setDragActive] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const { theme, toggleTheme } = useTheme()
   const { toast } = useToast()
   const [enhancing, setEnhancing] = useState(false)
@@ -93,14 +96,10 @@ export function Dashboard() {
     setDragActive(false)
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFiles(e.dataTransfer.files)
-    }
-  }
-
-  const handleFiles = (files: FileList) => {
-    const file = files[0]
-    if (file && file.type.startsWith("image/")) {
-      setPrompt((prev) => `${prev} (with uploaded screenshot reference)`)
+      const file = e.dataTransfer.files[0]
+      if (file.type.startsWith("image/")) {
+        setPrompt((prev) => `${prev} (with uploaded screenshot reference)`)
+      }
     }
   }
 
@@ -179,19 +178,12 @@ export function Dashboard() {
                 >
                   <Button
                     variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={onImportFigma}
                     className="flex items-center space-x-2"
                   >
-                    <Upload className="w-4 h-4" />
-                    <span>Upload Screenshot</span>
+                    <Figma className="w-4 h-4" />
+                    <span>Import from Figma</span>
                   </Button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => e.target.files && handleFiles(e.target.files)}
-                    className="hidden"
-                  />
                 </div>
 
                 <LayoutSelector onSelect={handleLayoutSelect} />

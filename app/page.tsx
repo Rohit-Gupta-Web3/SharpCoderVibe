@@ -17,8 +17,8 @@ function AppContent() {
 
   const renderContent = () => {
     switch (activeTab) {
-      case "dashboard":
-        return <Dashboard />
+        case "dashboard":
+          return <Dashboard onImportFigma={() => setActiveTab("figma")} />
       case "editor":
         return <AIEditor />
       case "database":
@@ -33,8 +33,8 @@ function AppContent() {
         return <ProfileSettings />
       case "settings":
         return <Settings />
-      default:
-        return <Dashboard />
+        default:
+          return <Dashboard onImportFigma={() => setActiveTab("figma")} />
     }
   }
 

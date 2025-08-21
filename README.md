@@ -22,7 +22,7 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 - **AI Code Editor** - Full-featured editor with syntax highlighting and live preview
 - **Database Management** - Multi-database support (PostgreSQL, MongoDB, Redis)
 - **Project Management** - Track and organize your development projects
-- **Figma Integration** - Import designs directly from Figma
+- **Figma Integration** - Import designs directly from Figma with a dedicated dashboard button
 - **Git Integration** - Connect and sync with GitHub repositories
 - **Profile & Settings** - Comprehensive user management
 
@@ -31,7 +31,7 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 - **Responsive Design** - Works perfectly on all device sizes
 - **Modern Interface** - Clean, intuitive design with smooth animations
 - **Customizable Layout** - Collapsible sidebar and flexible workspace
-- **Color Palette Selector** - Choose from predefined color schemes
+- **Color Palette Selector** - Choose from popular Color Hunt palettes
 - **Layout Templates** - Quick start with various layout options
 
 ### 🛠 Technical Features

@@ -17,3 +17,9 @@ This directory contains unit tests for the Next.js Gemini integration.
   - missing API key and header-based key usage
   - API key provided in the request body
   - model selection via `GEMINI_MODEL`
+- `colorPaletteSelector.test.tsx` verifies the color palette selector, ensuring:
+  - application-friendly Color Hunt palettes are exposed
+  - selecting a palette emits the expected prompt snippet
+- `dashboard.test.tsx` confirms the dashboard:
+  - displays the "Create an Application" preset
+  - routes to the Figma import screen when the import button is clicked
