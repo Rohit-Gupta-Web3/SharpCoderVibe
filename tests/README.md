@@ -38,3 +38,4 @@ This directory contains unit tests for the Next.js Gemini integration.
   - missing credentials route to signup
   - expired sessions redirect to login
   - valid sessions show the dashboard
+
