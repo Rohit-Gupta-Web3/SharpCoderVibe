@@ -12,13 +12,16 @@ describe("ChatService", () => {
     model: "gemini-pro"
   };
   let errorSpy: ReturnType<typeof vi.spyOn>;
+  let logSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
   });
 
   afterEach(() => {
     errorSpy.mockRestore();
+    logSpy.mockRestore();
   });
 
   it("returns placeholder when prompt is empty", async () => {
@@ -48,6 +51,9 @@ describe("ChatService", () => {
     const svc = new ChatService(config, fetchMock as any);
     const result = await svc.improvePrompt("test");
     expect(result).toBe("improved");
+    expect(logSpy).toHaveBeenCalledWith("Gemini API response", {
+      candidates: [{ content: { parts: [{ text: "improved" }] } }],
+    });
   });
 
   it("throws error when API fails", async () => {
