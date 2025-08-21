@@ -53,7 +53,7 @@ export function ColorPaletteSelector({ onSelect }: ColorPaletteSelectorProps) {
           <span>Select Colors</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80">
+      <PopoverContent className="w-80 max-h-60 overflow-y-auto">
         <div className="space-y-3">
           <h3 className="font-medium text-sm">Choose Color Palette</h3>
           {colorPalettes.map((palette) => (

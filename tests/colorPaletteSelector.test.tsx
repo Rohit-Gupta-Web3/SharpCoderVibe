@@ -21,4 +21,13 @@ describe("ColorPaletteSelector", () => {
       expect.stringContaining(colorPalettes[0].code)
     )
   })
+
+  it("enables vertical scrolling for large palette lists", async () => {
+    const onSelect = vi.fn()
+    render(<ColorPaletteSelector onSelect={onSelect} />)
+    const triggers = screen.getAllByRole("button", { name: "Select Colors" })
+    fireEvent.click(triggers[triggers.length - 1])
+    const scrollContainer = await screen.findByRole("dialog")
+    expect(scrollContainer).toHaveClass("overflow-y-auto")
+  })
 })
