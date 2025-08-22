@@ -25,15 +25,26 @@ async function clientRequest(path: string, data: any, signal?: AbortSignal): Pro
   return payload
 }
 
-export async function signup(name: string, email: string, password: string, signal?: AbortSignal): Promise<void> {
+export async function signup(
+  name: string,
+  email: string,
+  password: string,
+  signal?: AbortSignal
+): Promise<User> {
   const res = await clientRequest('/api/auth/signup', { name, email, password }, signal)
   setPending(res.email, res.name)
   if (res.otpauth) localStorage.setItem('scv_otpauth', res.otpauth)
+  return { id: res.id, email: res.email, name: res.name } as User
 }
 
-export async function login(email: string, password: string, signal?: AbortSignal): Promise<void> {
+export async function login(
+  email: string,
+  password: string,
+  signal?: AbortSignal
+): Promise<User> {
   const res = await clientRequest('/api/auth/login', { email, password }, signal)
   setPending(res.email, res.name)
+  return { id: res.id, email: res.email, name: res.name } as User
 }
 
 export async function verify(token: string, signal?: AbortSignal): Promise<User> {
