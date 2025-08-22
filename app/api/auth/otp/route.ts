@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { verify } from '@/lib/auth.server'
+import { verifyOtp } from '@/lib/auth.server'
 
 export async function POST(req: Request) {
   const { email, token } = await req.json().catch(() => ({}))
@@ -7,9 +7,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
   }
   try {
-    const user = await verify(email, token)
+    const user = await verifyOtp(email, token)
     return NextResponse.json(user)
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Invalid code' }, { status: 400 })
+    return NextResponse.json({ error: err.message || 'OTP verification failed' }, { status: 400 })
   }
 }

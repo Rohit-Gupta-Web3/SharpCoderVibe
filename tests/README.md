@@ -24,16 +24,14 @@ This directory contains unit tests for the Next.js Gemini integration.
   - displays the "Create an Application" preset
   - routes to the Figma import screen when the import button is clicked
 - `authService.test.ts` covers the authentication service layer, verifying:
-  - successful signup, login, and OTP verification create a session
+  - end-to-end signup with authenticator setup and login toggles the session flag
   - duplicate signups are rejected
   - invalid login attempts are rejected
   - requests respect `AbortController` cancellations
 - `authFlow.test.tsx` exercises the login and signup forms ensuring:
-  - successful login followed by OTP verification navigates to the dashboard
-  - signup collects a full name and redirects to authenticator setup
+  - login proceeds through password and authenticator steps before navigation
+  - signup requires authenticator setup before redirecting to the dashboard
   - authentication errors surface to the user
 - `rootRedirect.test.tsx` ensures the landing page redirects based on session state:
-  - missing credentials route to signup
-  - stored email without a token routes to login
-  - expired sessions redirect to login
+  - missing or expired sessions route to login
   - valid sessions show the dashboard

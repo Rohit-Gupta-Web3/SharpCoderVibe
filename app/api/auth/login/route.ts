@@ -10,6 +10,6 @@ export async function POST(req: Request) {
     const user = await login(email, password)
     return NextResponse.json(user)
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Invalid credentials' }, { status: 400 })
+    return NextResponse.json({ error: err.message || 'Login failed' }, { status: 400 })
   }
 }

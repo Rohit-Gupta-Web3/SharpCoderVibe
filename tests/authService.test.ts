@@ -4,12 +4,13 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import path from 'path'
 import { tmpdir } from 'os'
 import fs from 'fs/promises'
-import { generateToken } from '../lib/totp'
 
 process.env.DB_PATH = path.join(tmpdir(), 'auth-test-users.json')
 
-import { signup, login, verify, getCurrentUser } from '../lib/auth'
+import { signup, login, verifyOtp, logout, getCurrentUser } from '../lib/auth'
 import * as server from '../lib/auth.server'
+import { findUserByEmail } from '../lib/db'
+import speakeasy from 'speakeasy'
 
 function mockFetch() {
   vi.stubGlobal('fetch', (url: RequestInfo, options?: RequestInit) => {
@@ -23,11 +24,14 @@ function mockFetch() {
           const body = JSON.parse((options?.body as string) || '{}')
           let data: any
           if (url === '/api/auth/signup') {
-            data = await server.signup(body.name, body.email, body.password)
+            data = await server.signup(body.firstName, body.lastName, body.email, body.password)
           } else if (url === '/api/auth/login') {
             data = await server.login(body.email, body.password)
-          } else if (url === '/api/auth/verify') {
-            data = await server.verify(body.email, body.token)
+          } else if (url === '/api/auth/otp') {
+            data = await server.verifyOtp(body.email, body.token)
+          } else if (url === '/api/auth/logout') {
+            await server.logoutUser(body.id)
+            data = { ok: true }
           } else {
             throw new Error('Unknown endpoint')
           }
@@ -50,29 +54,36 @@ describe('auth service', () => {
     mockFetch()
   })
 
-  it('signs up, logs in, verifies, and stores session', async () => {
-    await signup('Alice', 'a@test.com', 'pw')
+  it('signs up, verifies otp, logs in again', async () => {
+    await signup('Alice', 'Smith', 'a@test.com', 'pw')
+    const userRec = await findUserByEmail('a@test.com')
+    const token = speakeasy.totp({ secret: userRec!.authSecret, encoding: 'base32' })
+    await verifyOtp('a@test.com', token)
+    expect(getCurrentUser()?.firstName).toBe('Alice')
+    await logout()
+    const userRec2 = await findUserByEmail('a@test.com')
+    expect(userRec2?.isLoggedIn).toBe(false)
     await login('a@test.com', 'pw')
-    const otpauth = localStorage.getItem('scv_otpauth')!
-    const secret = new URL(otpauth).searchParams.get('secret')!
-    const code = generateToken(secret)
-    await verify(code)
+    const token2 = speakeasy.totp({ secret: userRec2!.authSecret, encoding: 'base32' })
+    await verifyOtp('a@test.com', token2)
     expect(getCurrentUser()?.email).toBe('a@test.com')
+    const userRec3 = await findUserByEmail('a@test.com')
+    expect(userRec3?.isLoggedIn).toBe(true)
   })
 
   it('rejects duplicate signup', async () => {
-    await signup('Bob', 'b@test.com', 'pw')
-    await expect(signup('Bob', 'b@test.com', 'pw')).rejects.toThrow(/already/i)
+    await signup('Bob', 'User', 'b@test.com', 'pw')
+    await expect(signup('Bob', 'User', 'b@test.com', 'pw')).rejects.toThrow(/already/i)
   })
 
   it('rejects invalid login', async () => {
-    await signup('Eve', 'e@test.com', 'pw')
+    await signup('Eve', 'Smith', 'e@test.com', 'pw')
     await expect(login('e@test.com', 'bad')).rejects.toThrow(/invalid/i)
   })
 
   it('aborts requests', async () => {
     const ac = new AbortController()
-    const promise = signup('Tom', 't@test.com', 'pw', ac.signal)
+    const promise = signup('Tom', 'Jones', 't@test.com', 'pw', ac.signal)
     ac.abort()
     await expect(promise).rejects.toThrow(/aborted/i)
   })

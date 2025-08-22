@@ -18,7 +18,7 @@ export function Profile() {
         <CardTitle>Profile</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {user.name && <p>Name: {user.name}</p>}
+        <p>Name: {user.firstName} {user.lastName}</p>
         <p>Email: {user.email}</p>
         <div className="flex space-x-2">
           <Link href="/profile/settings">
