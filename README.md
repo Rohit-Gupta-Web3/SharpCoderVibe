@@ -80,7 +80,7 @@ Before running this project, make sure you have the following installed:
 - **Node.js** (version 18.0 or higher)
 - **npm** (version 9.0 or higher) or **yarn** or **pnpm**
 - **Git** (for version control)
-- **Firebase service account** set in the `FIREBASE_SERVICE_ACCOUNT` environment variable
+- **Firebase service account** provided via the `FIREBASE_SERVICE_ACCOUNT` environment variable or a file referenced by `FIREBASE_SERVICE_ACCOUNT_PATH`
 
 Check your versions:
 \`\`\`bash
