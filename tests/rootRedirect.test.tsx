@@ -16,20 +16,13 @@ describe('landing page redirects', () => {
     replaceMock.mockReset()
   })
 
-  it('redirects to signup when missing session', async () => {
-    render(<Home />)
-    await waitFor(() => expect(replaceMock).toHaveBeenCalledWith('/signup'))
-  })
-
-  it('redirects to login when email stored but no token', async () => {
-    localStorage.setItem('scv_user_email', 'a@test.com')
+  it('redirects to login when missing session', async () => {
     render(<Home />)
     await waitFor(() => expect(replaceMock).toHaveBeenCalledWith('/login'))
   })
 
   it('redirects to login when expired', async () => {
     localStorage.setItem('scv_token', 't')
-    localStorage.setItem('scv_user_email', 'a@test.com')
     localStorage.setItem('scv_token_expiry', String(Date.now() - 1000))
     render(<Home />)
     await waitFor(() => expect(replaceMock).toHaveBeenCalledWith('/login'))
@@ -37,7 +30,6 @@ describe('landing page redirects', () => {
 
   it('shows dashboard when session valid', async () => {
     localStorage.setItem('scv_token', 't')
-    localStorage.setItem('scv_user_email', 'a@test.com')
     localStorage.setItem('scv_token_expiry', String(Date.now() + 10000))
     const { getByText } = render(<Home />)
     await waitFor(() => expect(replaceMock).not.toHaveBeenCalled())

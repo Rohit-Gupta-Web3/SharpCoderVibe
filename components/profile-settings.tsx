@@ -39,8 +39,8 @@ export function ProfileSettings() {
   })
 
   const [profile, setProfile] = useState({
-    firstName: user?.name?.split(' ')[0] || '',
-    lastName: user?.name?.split(' ').slice(1).join(' ') || '',
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
     email: user?.email || '',
     phone: '',
     location: '',

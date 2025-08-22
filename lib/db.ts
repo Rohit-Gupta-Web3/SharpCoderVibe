@@ -5,8 +5,10 @@ export interface DBUser {
   id: string
   email: string
   password: string
-  name?: string
-  totpSecret: string
+  firstName: string
+  lastName: string
+  authSecret: string
+  isLoggedIn: boolean
 }
 
 const USERS = 'users'
@@ -55,5 +57,20 @@ export async function findUserByEmail(email: string): Promise<DBUser | undefined
   const snap = await db.collection(USERS).where('email', '==', email).limit(1).get()
   if (snap.empty) return undefined
   return snap.docs[0].data() as DBUser
+}
+
+export async function setLoginStatus(id: string, isLoggedIn: boolean): Promise<void> {
+  const filePath = process.env.DB_PATH
+  if (filePath) {
+    const users = await readUsers(filePath)
+    const idx = users.findIndex(u => u.id === id)
+    if (idx !== -1) {
+      users[idx].isLoggedIn = isLoggedIn
+      await writeUsers(filePath, users)
+    }
+    return
+  }
+  const db = await getFirestore()
+  await db.collection(USERS).doc(id).update({ isLoggedIn })
 }
 

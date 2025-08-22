@@ -25,7 +25,7 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 - **Figma Integration** - Import designs directly from Figma with a dedicated dashboard button
 - **Git Integration** - Connect and sync with GitHub repositories
 - **Profile & Settings** - Comprehensive user management
-- **Authentication** - Email-based signup and login backed by Firebase with Microsoft Authenticator-based 2FA
+- **Authentication** - Email-based signup with mandatory authenticator setup and OTP-verified logins backed by Firebase
 
 ### 🎨 UI/UX Features
 - **Dark/Light Theme** - Toggle between themes with persistent storage
@@ -46,11 +46,10 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 
 ## ✅ Implemented Use Cases
 
-- Users can create accounts with their full name and email.
-- New users must scan a QR code with Microsoft Authenticator to complete signup.
-- Returning users with an active session only supply an authenticator code to log in.
-- Authenticated users can view their profile and adjust personal settings with pre-filled data.
-- User records persist in Firebase with session-based redirects.
+- Users create accounts with first/last names, email, password, and configure an authenticator app during signup.
+- Returning users with an active session confirm only their authenticator code; logged-out users re-enter their password.
+- Authenticated users can view their profile and adjust personal settings with pre-filled name and email data.
+- User records persist in Firebase with a boolean login flag that toggles on signup/login and logout.
 - Authentication services enforce error handling for duplicate signups, invalid logins, and aborted requests.
 
 ## 🏗 Tech Stack
@@ -81,6 +80,7 @@ Before running this project, make sure you have the following installed:
 - **Node.js** (version 18.0 or higher)
 - **npm** (version 9.0 or higher) or **yarn** or **pnpm**
 - **Git** (for version control)
+- **Firebase service account** set in the `FIREBASE_SERVICE_ACCOUNT` environment variable
 
 Check your versions:
 \`\`\`bash
