@@ -4,7 +4,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import path from 'path'
 import { tmpdir } from 'os'
 import fs from 'fs/promises'
-import { authenticator } from 'otplib'
+import { generateToken } from '../lib/totp'
 
 process.env.DB_PATH = path.join(tmpdir(), 'auth-test-users.json')
 
@@ -55,7 +55,7 @@ describe('auth service', () => {
     await login('a@test.com', 'pw')
     const otpauth = localStorage.getItem('scv_otpauth')!
     const secret = new URL(otpauth).searchParams.get('secret')!
-    const code = authenticator.generate(secret)
+    const code = generateToken(secret)
     await verify(code)
     expect(getCurrentUser()?.email).toBe('a@test.com')
   })
