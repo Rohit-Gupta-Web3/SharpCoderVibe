@@ -51,6 +51,7 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 - Returning users with an active session only supply an authenticator code to log in.
 - Authenticated users can view their profile and adjust personal settings with pre-filled data.
 - User records persist in Firebase with session-based redirects.
+- Authentication services enforce error handling for duplicate signups, invalid logins, and aborted requests.
 
 ## 🏗 Tech Stack
 
