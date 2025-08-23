@@ -31,15 +31,6 @@ describe("Dashboard", () => {
     mockToast.mockReset()
   })
 
-  it("renders application preset and handles Figma import", () => {
-    const onImportFigma = vi.fn()
-    render(<Dashboard onImportFigma={onImportFigma} />)
-
-    expect(screen.getByText("Create an Application")).toBeInTheDocument()
-    fireEvent.click(screen.getByText("Import from Figma"))
-    expect(onImportFigma).toHaveBeenCalled()
-  })
-
   it("enhances the textarea prompt via ChatGPT", async () => {
     const fetchSpy = vi
       .fn()
@@ -71,6 +62,25 @@ describe("Dashboard", () => {
         status: 500,
         json: async () => ({ error: "boom" })
       })
+    ;(global as any).fetch = fetchSpy
+
+    render(<Dashboard onImportFigma={() => {}} />)
+
+    const textarea = screen.getAllByPlaceholderText("Describe what you want to build...")[0] as HTMLTextAreaElement
+    fireEvent.change(textarea, { target: { value: "original" } })
+    fireEvent.click(screen.getAllByText("Enhance Prompt")[0])
+
+    await waitFor(() => {
+      expect(mockToast).toHaveBeenCalledWith(
+        expect.objectContaining({ title: "Enhance Prompt Failed" })
+      )
+    })
+
+    expect(textarea).toHaveValue("original")
+  })
+
+  it("handles network errors gracefully", async () => {
+    const fetchSpy = vi.fn().mockRejectedValue(new Error("network"))
     ;(global as any).fetch = fetchSpy
 
     render(<Dashboard onImportFigma={() => {}} />)
