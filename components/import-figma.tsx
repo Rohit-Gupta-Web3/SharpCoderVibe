@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useToast } from "@/hooks/use-toast"
+import { importFigmaFile } from "@/lib/figma"
 import {
   Figma,
   Link,
@@ -23,7 +25,7 @@ import {
   ImageIcon,
 } from "lucide-react"
 
-const figmaProjects = [
+const initialFigmaProjects = [
   {
     id: 1,
     name: "E-commerce Mobile App",
@@ -56,7 +58,7 @@ const figmaProjects = [
   },
 ]
 
-const importHistory = [
+const initialImportHistory = [
   { name: "Button Components", type: "Components", status: "Success", date: "2024-01-15", files: 8 },
   { name: "Color Palette", type: "Styles", status: "Success", date: "2024-01-14", files: 1 },
   { name: "Typography System", type: "Styles", status: "Success", date: "2024-01-13", files: 3 },
@@ -67,24 +69,56 @@ export function ImportFigma() {
   const [figmaUrl, setFigmaUrl] = useState("")
   const [isImporting, setIsImporting] = useState(false)
   const [importProgress, setImportProgress] = useState(0)
+  const [projects, setProjects] = useState(initialFigmaProjects)
+  const [history, setHistory] = useState(initialImportHistory)
+  const { toast } = useToast()
 
   const handleImport = async () => {
     if (!figmaUrl.trim()) return
 
     setIsImporting(true)
-    setImportProgress(0)
+    setImportProgress(10)
 
-    // Simulate import progress
-    const interval = setInterval(() => {
-      setImportProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval)
-          setIsImporting(false)
-          return 100
-        }
-        return prev + 10
+    try {
+      const result = await importFigmaFile(figmaUrl)
+      setImportProgress(100)
+      setProjects([
+        ...projects,
+        {
+          id: Date.now(),
+          name: result.name || figmaUrl,
+          url: figmaUrl,
+          status: "Ready",
+          lastSync: "just now",
+          components: result.components,
+          screens: 0,
+          thumbnail: "/placeholder.svg?height=120&width=200",
+        },
+      ])
+      setHistory([
+        {
+          name: result.name || figmaUrl,
+          type: "Components",
+          status: "Success",
+          date: new Date().toISOString().split("T")[0],
+          files: result.components,
+        },
+        ...history,
+      ])
+      toast({
+        title: "Import complete",
+        description: `${result.components} components processed`,
       })
-    }, 500)
+    } catch (err: any) {
+      setImportProgress(0)
+      toast({
+        title: "Import failed",
+        description: err.message || "Unknown error",
+        variant: "destructive",
+      })
+    } finally {
+      setIsImporting(false)
+    }
   }
 
   const getStatusIcon = (status: string) => {
@@ -169,7 +203,7 @@ export function ImportFigma() {
               </TabsList>
 
               <TabsContent value="projects" className="space-y-4">
-                {figmaProjects.map((project) => (
+                {projects.map((project) => (
                   <Card key={project.id}>
                     <CardContent className="p-6">
                       <div className="flex items-start space-x-4">
@@ -224,7 +258,7 @@ export function ImportFigma() {
                 <Card>
                   <CardContent className="p-0">
                     <div className="divide-y">
-                      {importHistory.map((item, index) => (
+                      {history.map((item, index) => (
                         <div key={index} className="p-4 flex items-center justify-between">
                           <div className="flex items-center space-x-3">
                             {getStatusIcon(item.status)}
