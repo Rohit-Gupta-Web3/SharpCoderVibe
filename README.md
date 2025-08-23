@@ -51,6 +51,7 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 - Authenticated users can view their profile and adjust personal settings with pre-filled name and email data.
 - User records persist in Firebase with a boolean login flag that toggles on signup/login and logout.
 - Authentication services enforce error handling for duplicate signups, invalid logins, and aborted requests.
+- Designs can be imported from Figma URLs, summarizing component and style counts while handling network failures and timeouts.
 
 ## 🏗 Tech Stack
 
