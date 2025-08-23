@@ -11,6 +11,7 @@ import { Send, Sparkles, ImageIcon, Home, ShoppingCart, MessageCircle, Moon, Sun
 import { ColorPaletteSelector } from "./color-palette-selector"
 import { LayoutSelector } from "./layout-selector"
 import { useTheme } from "../contexts/theme-context"
+import { SYSTEM_PROMPT } from "@/lib/chatService"
 
 const presetPrompts = [
   {
@@ -51,20 +52,21 @@ export function Dashboard({ onImportFigma }: DashboardProps) {
   }
 
   const handleEnhancePrompt = async () => {
-    if (!prompt.trim() || enhancing) {
+    const currentText = prompt
+    if (!currentText.trim() || enhancing) {
       return
     }
-  const controller = new AbortController()
-  // Increase client-side timeout to 60s to match the server's default
-  // Gemini timeout. The previous 15s value frequently aborted long
-  // model runs before receiving the improved prompt.
-  const timeout = setTimeout(() => controller.abort(), 60000)
+    const controller = new AbortController()
+    // Increase client-side timeout to 60s to match the server's default
+    // AI model timeout. The previous 15s value frequently aborted long
+    // model runs before receiving the improved prompt.
+    const timeout = setTimeout(() => controller.abort(), 60000)
     try {
       setEnhancing(true)
       const res = await fetch("/api/improve-prompt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt: currentText, systemPrompt: SYSTEM_PROMPT }),
         signal: controller.signal,
       })
         let data: any
@@ -124,8 +126,8 @@ export function Dashboard({ onImportFigma }: DashboardProps) {
         toast({ variant: "destructive", title: "No enhanced prompt returned", description: "The service returned no text to replace the prompt." })
       } else {
         const cleanedResult = resultText.trim()
-  setPrompt(cleanedResult)
-  console.debug("dashboard: setPrompt ->", cleanedResult)
+        setPrompt(cleanedResult)
+        console.debug("dashboard: setPrompt ->", cleanedResult)
         // ensure the textarea shows the new value and is focused for the user
         // defer caret positioning to the next macrotask so React has applied the new value
         try {
