@@ -4,6 +4,8 @@ import { NextRequest } from "next/server";
 const improvePromptMock = vi.fn();
 vi.mock("../lib/chatService", () => ({
   ChatService: vi.fn(() => ({ improvePrompt: improvePromptMock })),
+  SYSTEM_PROMPT: "test-system",
+  PLACEHOLDER_RESPONSE: "placeholder",
 }));
 
 import { ChatService } from "../lib/chatService";
@@ -14,8 +16,8 @@ let errorSpy: ReturnType<typeof vi.spyOn>;
 
 beforeEach(() => {
   improvePromptMock.mockReset();
-  process.env.GEMINI_API_KEY = "test-key";
-  delete process.env.GEMINI_MODEL;
+  process.env.OPENAI_API_KEY = "test-key";
+  delete process.env.OPENAI_MODEL;
   vi.mocked(ChatService).mockClear();
   errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -36,6 +38,10 @@ describe("improve-prompt API route", () => {
     const res = await POST(req);
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ result: "better" });
+    expect(improvePromptMock).toHaveBeenCalledWith("test", {
+      systemPrompt: expect.any(String),
+      signal: expect.any(AbortSignal),
+    });
     expect(errorSpy).not.toHaveBeenCalled();
   });
 
@@ -96,7 +102,7 @@ describe("improve-prompt API route", () => {
   });
 
   it("returns error when API key is missing", async () => {
-    delete process.env.GEMINI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
     const req = new NextRequest(
       new Request("http://test", {
         method: "POST",
@@ -105,12 +111,12 @@ describe("improve-prompt API route", () => {
     );
     const res = await POST(req);
     expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ error: "Gemini API key is missing" });
+    expect(await res.json()).toEqual({ error: "OpenAI API key is missing" });
     expect(errorSpy).toHaveBeenCalled();
   });
 
   it("accepts API key from header when env var is absent", async () => {
-    delete process.env.GEMINI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
     improvePromptMock.mockResolvedValueOnce("header-better");
     
     const req = new NextRequest(
@@ -127,7 +133,7 @@ describe("improve-prompt API route", () => {
   });
 
   it("accepts API key from request body when header and env are absent", async () => {
-    delete process.env.GEMINI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
     improvePromptMock.mockResolvedValueOnce("body-better");
 
     const req = new NextRequest(
@@ -142,8 +148,8 @@ describe("improve-prompt API route", () => {
     expect(errorSpy).not.toHaveBeenCalled();
   });
 
-  it("passes GEMINI_MODEL env var to ChatService", async () => {
-    process.env.GEMINI_MODEL = "custom-model";
+  it("passes OPENAI_MODEL env var to ChatService", async () => {
+    process.env.OPENAI_MODEL = "custom-model";
     improvePromptMock.mockResolvedValueOnce("better");
     const req = new NextRequest(
       new Request("http://test", {
@@ -155,7 +161,7 @@ describe("improve-prompt API route", () => {
     expect(ChatService).toHaveBeenCalledWith({ apiKey: "test-key", model: "custom-model" });
   });
 
-  it("uses default model when GEMINI_MODEL is unset", async () => {
+  it("uses default model when OPENAI_MODEL is unset", async () => {
     improvePromptMock.mockResolvedValueOnce("better");
     const req = new NextRequest(
       new Request("http://test", {
@@ -164,6 +170,21 @@ describe("improve-prompt API route", () => {
       }),
     );
     await POST(req);
-    expect(ChatService).toHaveBeenCalledWith({ apiKey: "test-key", model: "gemini-2.5-flash" });
+    expect(ChatService).toHaveBeenCalledWith({ apiKey: "test-key", model: "gpt-5-nano" });
+  });
+
+  it("forwards custom system prompts", async () => {
+    improvePromptMock.mockResolvedValueOnce("better");
+    const req = new NextRequest(
+      new Request("http://test", {
+        method: "POST",
+        body: JSON.stringify({ prompt: "test", systemPrompt: "custom" }),
+      }),
+    );
+    await POST(req);
+    expect(improvePromptMock).toHaveBeenCalledWith("test", {
+      systemPrompt: "custom",
+      signal: expect.any(AbortSignal),
+    });
   });
 });

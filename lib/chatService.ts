@@ -43,10 +43,14 @@ export class ChatService {
     this.fetchFn = fetchFn;
   }
 
-  async improvePrompt(rawPrompt: string, signal?: AbortSignal): Promise<string> {
+  async improvePrompt(
+    rawPrompt: string,
+    options: { systemPrompt?: string; signal?: AbortSignal } = {}
+  ): Promise<string> {
     if (!rawPrompt || !rawPrompt.trim()) {
       return PLACEHOLDER_RESPONSE;
     }
+    const { systemPrompt = SYSTEM_PROMPT, signal } = options;
     // Support two providers: Gemini (Google) and OpenAI
     try {
       let res: any;
@@ -56,7 +60,7 @@ export class ChatService {
         // Gemini REST generateContent
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`;
         const body = {
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          system_instruction: { parts: [{ text: systemPrompt }] },
           // single user content block
           contents: [{ role: "user", parts: [{ text: rawPrompt }] }],
         };
@@ -92,7 +96,7 @@ export class ChatService {
         const body = {
           model: this.model,
           messages: [
-            { role: "system", content: SYSTEM_PROMPT },
+            { role: "system", content: systemPrompt },
             { role: "user", content: rawPrompt },
           ],
           max_tokens: 800,

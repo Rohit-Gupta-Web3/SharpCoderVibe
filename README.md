@@ -18,7 +18,7 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 
 ### 🎯 Core Features
 - **AI Dashboard** - Intelligent prompt-based code generation
- - **Enhance Prompt Button** - Sends prompts to Gemini for instant refinement
+- **Enhance Prompt Button** - Sends prompts to ChatGPT for instant refinement
 - **AI Code Editor** - Full-featured editor with syntax highlighting and live preview
 - **Database Management** - Multi-database support (PostgreSQL, MongoDB, Redis)
 - **Project Management** - Track and organize your development projects
@@ -42,7 +42,7 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 - **State Management** - Context API for theme and app state
 - **File Upload** - Drag & drop screenshot support
 - **Real-time Preview** - Live code preview and generation
- - **Prompt Improvement Service** - Next.js API leveraging Google Gemini for scaffolded prompt refinement
+- **Prompt Improvement Service** - Next.js API leveraging OpenAI ChatGPT for scaffolded prompt refinement
 
 ## ✅ Implemented Use Cases
 
@@ -64,14 +64,14 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 
 ## 🧠 Prompt Improvement Service
 
-Sharp Coder includes a Next.js API route that connects to Google Gemini for prompt enhancement. The service rewrites user prompts using an eight-step scaffold to clarify intent, surface context, enumerate constraints, and ensure coherent outputs. Source code lives in `lib/chatService.ts` with an accompanying route handler at `app/api/improve-prompt/route.ts`. Unit tests reside in `tests/` to validate normal usage, error conditions, and request timeouts.
+Sharp Coder includes a Next.js API route that connects to OpenAI's ChatGPT for prompt enhancement. The service rewrites user prompts using an eight-step scaffold to clarify intent, surface context, enumerate constraints, and ensure coherent outputs. Source code lives in `lib/chatService.ts` with an accompanying route handler at `app/api/improve-prompt/route.ts`. Unit tests reside in `tests/` to validate normal usage, error conditions, and request timeouts.
 
-To use the service you must supply a valid Gemini API key via the `GEMINI_API_KEY` environment variable, an `x-api-key` header, or an `apiKey` property in the request body. You can optionally specify `GEMINI_MODEL` (default `gemini-2.5-flash`). Requests abort after `GEMINI_TIMEOUT_MS` milliseconds (default `60000`) to protect the server from hanging. The route responds with clear errors for common issues:
+To use the service you must supply a valid OpenAI API key via the `OPENAI_API_KEY` environment variable, an `x-api-key` header, or an `apiKey` property in the request body. You can optionally specify `OPENAI_MODEL` (default `gpt-5-nano`). Requests abort after `OPENAI_TIMEOUT_MS` milliseconds (default `60000`) to protect the server from hanging. The route responds with clear errors for common issues:
 
 - `400` for malformed JSON payloads
 - `400` when `prompt` is missing or not a string
-- `500` if the Gemini API key is missing
-- `500` with upstream Gemini status codes and messages when the external API fails
+- `500` if the OpenAI API key is missing
+- `500` with upstream OpenAI status codes and messages when the external API fails
 
 ## 📋 Prerequisites
 
