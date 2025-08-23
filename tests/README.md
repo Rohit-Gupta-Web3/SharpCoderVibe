@@ -35,3 +35,6 @@ This directory contains unit tests for the Next.js Gemini integration.
 - `rootRedirect.test.tsx` ensures the landing page redirects based on session state:
   - missing or expired sessions route to login
   - valid sessions show the dashboard
+- `db.test.ts` verifies the database layer persists and retrieves users when a file-based store is configured.
+- `firebase.test.ts` checks Firebase initialization, covering env credentials, file-path credentials, invalid JSON, default initialization when credentials are absent, and project ID detection via service accounts or `GCLOUD_PROJECT`.
+
