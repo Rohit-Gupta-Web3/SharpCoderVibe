@@ -1,10 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import {
-  ChatService,
-  PLACEHOLDER_RESPONSE,
-  SYSTEM_PROMPT,
-  type GeminiConfig
-} from "../lib/chatService";
+import { ChatService, SYSTEM_PROMPT, type GeminiConfig } from "../lib/chatService";
 
 describe("ChatService", () => {
   const config: GeminiConfig = {
@@ -24,10 +19,9 @@ describe("ChatService", () => {
     logSpy.mockRestore();
   });
 
-  it("returns placeholder when prompt is empty", async () => {
+  it("throws when prompt is empty", async () => {
     const svc = new ChatService(config, (() => Promise.reject(new Error("should not call"))) as any);
-    const result = await svc.improvePrompt("  ");
-    expect(result).toBe(PLACEHOLDER_RESPONSE);
+    await expect(svc.improvePrompt("  ")).rejects.toThrow("Prompt must not be empty");
   });
 
   it("sends system and user messages and returns response", async () => {
@@ -54,6 +48,23 @@ describe("ChatService", () => {
     expect(logSpy).toHaveBeenCalledWith("Gemini API response", {
       candidates: [{ content: { parts: [{ text: "improved" }] } }],
     });
+  });
+
+  it("overrides the system prompt when provided", async () => {
+    const fetchMock = (url: string, options: any) => {
+      const body = JSON.parse(options.body);
+      expect(body.system_instruction).toEqual({ parts: [{ text: "custom" }] });
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            candidates: [{ content: { parts: [{ text: "improved" }] } }]
+          })
+      });
+    };
+    const svc = new ChatService(config, fetchMock as any);
+    const result = await svc.improvePrompt("test", { systemPrompt: "custom" });
+    expect(result).toBe("improved");
   });
 
   it("throws error when API fails", async () => {
@@ -102,10 +113,64 @@ describe("ChatService", () => {
       });
     const svc = new ChatService(config, fetchMock as any);
     const controller = new AbortController();
-    const promise = svc.improvePrompt("test", controller.signal);
+    const promise = svc.improvePrompt("test", { signal: controller.signal });
     controller.abort();
     await expect(promise).rejects.toHaveProperty("name", "AbortError");
     expect(errorSpy).toHaveBeenCalled();
+  });
+
+  it("uses max_completion_tokens for OpenAI models", async () => {
+    const fetchMock = (url: string, options: any) => {
+      expect(url).toBe("https://api.openai.com/v1/chat/completions");
+      const body = JSON.parse(options.body);
+      expect(body).toMatchObject({
+        model: "gpt-test",
+        max_completion_tokens: 800,
+      });
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            choices: [{ message: { content: "done" } }],
+          }),
+      });
+    };
+    const svc = new ChatService(
+      { apiKey: "k", model: "gpt-test", provider: "openai" },
+      fetchMock as any,
+    );
+    const result = await svc.improvePrompt("p");
+    expect(result).toBe("done");
+  });
+
+  it("handles array-based OpenAI message content", async () => {
+    const fetchMock = (url: string, options: any) => {
+      expect(url).toBe("https://api.openai.com/v1/chat/completions");
+      const body = JSON.parse(options.body);
+      expect(body).toMatchObject({ model: "gpt-test", max_completion_tokens: 800 });
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            choices: [
+              {
+                message: {
+                  content: [
+                    { type: "text", text: { value: "hello" } },
+                    { type: "text", text: { value: " world" } },
+                  ],
+                },
+              },
+            ],
+          }),
+      });
+    };
+    const svc = new ChatService(
+      { apiKey: "k", model: "gpt-test", provider: "openai" },
+      fetchMock as any,
+    );
+    const result = await svc.improvePrompt("p");
+    expect(result).toBe("hello world");
   });
 });
 

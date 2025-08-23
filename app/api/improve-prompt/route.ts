@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ChatService, PLACEHOLDER_RESPONSE } from "../../../lib/chatService";
+import { ChatService, SYSTEM_PROMPT } from "../../../lib/chatService";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
@@ -11,7 +11,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
 
-    const { prompt, apiKey: bodyKey } = body || {};
+    const { prompt, apiKey: bodyKey, systemPrompt: bodySystemPrompt } = body || {};
 
     if (typeof prompt !== "string") {
       console.error("Prompt must be a string", { prompt });
@@ -22,14 +22,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       req.headers.get("x-api-key") ||
       req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
     const apiKey = process.env.OPENAI_API_KEY || headerKey || bodyKey;
-    // If there's no API key available, return a safe placeholder result so
-    // the client receives a response it can display in the textarea. This
-    // keeps the UX working locally without requiring the external Gemini
-    // key during development. The real implementation still requires a key.
     if (typeof apiKey !== "string" || !apiKey) {
-      console.warn("Gemini API key is missing; returning placeholder response for development.");
-      return NextResponse.json({ result: PLACEHOLDER_RESPONSE });
+      console.error("OpenAI API key is missing");
+      return NextResponse.json({ error: "OpenAI API key is missing" }, { status: 500 });
     }
+
+    const systemPrompt =
+      typeof bodySystemPrompt === "string" && bodySystemPrompt.trim()
+        ? bodySystemPrompt
+        : SYSTEM_PROMPT;
 
     const config = {
       apiKey,
@@ -38,16 +39,21 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const service = new ChatService(config);
     const controller = new AbortController();
-    const timeoutMs = Number(process.env.GEMINI_TIMEOUT_MS) || 60000;
+    const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS) || 60000;
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      const result = await service.improvePrompt(prompt, controller.signal);
-      // If the service returned nothing (empty string), return a safe placeholder
-      // so the client receives a useful value to display in the textarea.
-      if (!result || !result.trim()) {
-        return NextResponse.json({ result: PLACEHOLDER_RESPONSE });
+      const result = await service.improvePrompt(prompt, {
+        systemPrompt,
+        signal: controller.signal,
+      });
+      const trimmed = typeof result === "string" ? result.trim() : "";
+      if (!trimmed) {
+        return NextResponse.json(
+          { error: "No enhanced prompt returned" },
+          { status: 500 },
+        );
       }
-      return NextResponse.json({ result });
+      return NextResponse.json({ result: trimmed });
     } finally {
       clearTimeout(timeout);
     }

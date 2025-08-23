@@ -5,8 +5,6 @@ export interface GeminiConfig {
   provider?: "gemini" | "openai";
 }
 
-export const PLACEHOLDER_RESPONSE = "/* Enter a prompt to improve */";
-
 export const SYSTEM_PROMPT =
   "You are a senior prompt engineer applying Gödel’s Scaffolded Cognitive Prompting (GSCP). " +
   "Rewrite the user's prompt using the full 8-step scaffold: " +
@@ -43,10 +41,14 @@ export class ChatService {
     this.fetchFn = fetchFn;
   }
 
-  async improvePrompt(rawPrompt: string, signal?: AbortSignal): Promise<string> {
+  async improvePrompt(
+    rawPrompt: string,
+    options: { systemPrompt?: string; signal?: AbortSignal } = {}
+  ): Promise<string> {
     if (!rawPrompt || !rawPrompt.trim()) {
-      return PLACEHOLDER_RESPONSE;
+      throw new Error("Prompt must not be empty");
     }
+    const { systemPrompt = SYSTEM_PROMPT, signal } = options;
     // Support two providers: Gemini (Google) and OpenAI
     try {
       let res: any;
@@ -56,7 +58,7 @@ export class ChatService {
         // Gemini REST generateContent
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`;
         const body = {
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          system_instruction: { parts: [{ text: systemPrompt }] },
           // single user content block
           contents: [{ role: "user", parts: [{ text: rawPrompt }] }],
         };
@@ -92,11 +94,13 @@ export class ChatService {
         const body = {
           model: this.model,
           messages: [
-            { role: "system", content: SYSTEM_PROMPT },
+            { role: "system", content: systemPrompt },
             { role: "user", content: rawPrompt },
           ],
-          max_tokens: 800,
-        };
+          // "max_tokens" is unsupported on some newer models; use "max_completion_tokens" instead
+          // which caps only the completion portion of the response.
+          max_completion_tokens: 800,
+        } as const;
         console.debug("ChatService.improvePrompt ->", { url, body: { model: this.model } });
         res = await this.fetchFn(url, {
           method: "POST",
@@ -126,8 +130,26 @@ export class ChatService {
       }
 
       // Robust extraction for both providers
+      function partToText(part: any): string {
+        if (typeof part === "string") return part;
+        if (!part) return "";
+        if (typeof part.text === "string") return part.text;
+        if (typeof part.text?.value === "string") return part.text.value;
+        if (typeof part.value === "string") return part.value;
+        return "";
+      }
+
+      function normalizeContent(content: any): string | undefined {
+        if (!content) return undefined;
+        if (typeof content === "string") return content;
+        if (Array.isArray(content)) {
+          return content.map(partToText).join("");
+        }
+        return undefined;
+      }
+
       const extractors: Array<() => any> = [
-        () => data?.choices?.[0]?.message?.content,
+        () => normalizeContent(data?.choices?.[0]?.message?.content),
         () => data?.choices?.[0]?.text,
         () => data?.result,
         () => data?.output?.content?.parts?.[0]?.text,
@@ -148,7 +170,7 @@ export class ChatService {
         }
       }
 
-      const finalText = (typeof extracted === "string" ? extracted : "");
+      const finalText = typeof extracted === "string" ? extracted : "";
       console.debug("ChatService.improvePrompt extracted ->", finalText);
 
       // Normalize to plain text for the client
