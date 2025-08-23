@@ -44,7 +44,6 @@ export function Dashboard({ onImportFigma }: DashboardProps) {
   const { theme, toggleTheme } = useTheme()
   const { toast } = useToast()
   const [enhancing, setEnhancing] = useState(false)
-  const [lastApiResponse, setLastApiResponse] = useState<string | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
   const handlePresetClick = (presetPrompt: string) => {
@@ -68,35 +67,29 @@ export function Dashboard({ onImportFigma }: DashboardProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: currentText, systemPrompt: SYSTEM_PROMPT }),
         signal: controller.signal,
-      })
-        let data: any
-        let parsedOk = true
+      });
+      let data: any
+      let parsedOk = true
+      try {
+        data = await res.json()
+      } catch (e) {
+        // If response wasn't JSON, fall back to text
+        parsedOk = false
         try {
-          data = await res.json()
-        } catch (e) {
-          // If response wasn't JSON, fall back to text
-          parsedOk = false
-          try {
-            const txt = await res.text()
-            data = txt
-          } catch {
-            data = null
-          }
-        }
-
-        console.debug("/api/improve-prompt status ->", res.status, "parsedJson->", parsedOk, "type->", typeof data)
-        console.debug("/api/improve-prompt ->", data)
-        // store a richer debug payload so we can inspect status + parsed flag in the UI
-        try {
-          setLastApiResponse(JSON.stringify({ status: res.status, parsedOk, data }, null, 2))
+          const txt = await res.text()
+          data = txt
         } catch {
-          setLastApiResponse(String(data))
+          data = null
         }
-        if (!res.ok) {
-          // try to extract an error message from JSON or text
-          const errMsg = data?.error || (typeof data === "string" ? data : undefined) || "Failed to enhance prompt"
-          throw new Error(errMsg)
-        }
+      }
+
+      console.debug("/api/improve-prompt status ->", res.status, "parsedJson->", parsedOk, "type->", typeof data)
+      console.debug("/api/improve-prompt ->", data)
+      if (!res.ok) {
+        // try to extract an error message from JSON or text
+        const errMsg = data?.error || (typeof data === "string" ? data : undefined) || "Failed to enhance prompt"
+        throw new Error(errMsg)
+      }
 
       // Be defensive about the response shape. Accept string or nested shapes.
       // Defensive parsing: accept either string responses or { result: string }
@@ -283,13 +276,6 @@ export function Dashboard({ onImportFigma }: DashboardProps) {
 
               {/* Character Count */}
               <div className="text-right text-sm text-gray-500 dark:text-gray-400">{prompt.length}/1000</div>
-              {/* Debug: show last API response for troubleshooting enhance flow */}
-              {lastApiResponse && (
-                <div className="mt-4">
-                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">API response (debug)</div>
-                  <pre className="max-h-48 overflow-auto text-xs whitespace-pre-wrap bg-gray-100 dark:bg-gray-800 p-2 rounded">{lastApiResponse}</pre>
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
