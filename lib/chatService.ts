@@ -130,8 +130,26 @@ export class ChatService {
       }
 
       // Robust extraction for both providers
+      function partToText(part: any): string {
+        if (typeof part === "string") return part;
+        if (!part) return "";
+        if (typeof part.text === "string") return part.text;
+        if (typeof part.text?.value === "string") return part.text.value;
+        if (typeof part.value === "string") return part.value;
+        return "";
+      }
+
+      function normalizeContent(content: any): string | undefined {
+        if (!content) return undefined;
+        if (typeof content === "string") return content;
+        if (Array.isArray(content)) {
+          return content.map(partToText).join("");
+        }
+        return undefined;
+      }
+
       const extractors: Array<() => any> = [
-        () => data?.choices?.[0]?.message?.content,
+        () => normalizeContent(data?.choices?.[0]?.message?.content),
         () => data?.choices?.[0]?.text,
         () => data?.result,
         () => data?.output?.content?.parts?.[0]?.text,
@@ -152,7 +170,7 @@ export class ChatService {
         }
       }
 
-      const finalText = (typeof extracted === "string" ? extracted : "");
+      const finalText = typeof extracted === "string" ? extracted : "";
       console.debug("ChatService.improvePrompt extracted ->", finalText);
 
       // Normalize to plain text for the client

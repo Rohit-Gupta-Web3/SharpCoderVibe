@@ -142,5 +142,35 @@ describe("ChatService", () => {
     const result = await svc.improvePrompt("p");
     expect(result).toBe("done");
   });
+
+  it("handles array-based OpenAI message content", async () => {
+    const fetchMock = (url: string, options: any) => {
+      expect(url).toBe("https://api.openai.com/v1/chat/completions");
+      const body = JSON.parse(options.body);
+      expect(body).toMatchObject({ model: "gpt-test", max_completion_tokens: 800 });
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            choices: [
+              {
+                message: {
+                  content: [
+                    { type: "text", text: { value: "hello" } },
+                    { type: "text", text: { value: " world" } },
+                  ],
+                },
+              },
+            ],
+          }),
+      });
+    };
+    const svc = new ChatService(
+      { apiKey: "k", model: "gpt-test", provider: "openai" },
+      fetchMock as any,
+    );
+    const result = await svc.improvePrompt("p");
+    expect(result).toBe("hello world");
+  });
 });
 
