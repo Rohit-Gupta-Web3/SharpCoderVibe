@@ -11,6 +11,7 @@ import { Send, Sparkles, ImageIcon, Home, ShoppingCart, MessageCircle, Moon, Sun
 import { ColorPaletteSelector } from "./color-palette-selector"
 import { LayoutSelector } from "./layout-selector"
 import { useTheme } from "../contexts/theme-context"
+import { SYSTEM_PROMPT } from "@/lib/chatService"
 
 const presetPrompts = [
   {
@@ -56,7 +57,7 @@ export function Dashboard({ onImportFigma }: DashboardProps) {
     }
   const controller = new AbortController()
   // Increase client-side timeout to 60s to match the server's default
-  // Gemini timeout. The previous 15s value frequently aborted long
+  // AI model timeout. The previous 15s value frequently aborted long
   // model runs before receiving the improved prompt.
   const timeout = setTimeout(() => controller.abort(), 60000)
     try {
@@ -64,7 +65,7 @@ export function Dashboard({ onImportFigma }: DashboardProps) {
       const res = await fetch("/api/improve-prompt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt, systemPrompt: SYSTEM_PROMPT }),
         signal: controller.signal,
       })
         let data: any

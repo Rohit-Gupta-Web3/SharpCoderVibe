@@ -1,22 +1,24 @@
 # Tests
 
-This directory contains unit tests for the Next.js Gemini integration.
+This directory contains unit tests for the Next.js OpenAI integration.
 
 - `chatService.test.ts` validates the prompt improvement logic, including:
   - returning a placeholder for empty prompts
-  - sending system and user messages to the Gemini API
+  - sending system and user messages to the OpenAI or Gemini APIs
+  - overriding the system prompt when provided
   - handling network failures gracefully
   - surfacing structured and plain-text API error responses
   - propagating abort errors for timed-out requests
+  - using `max_completion_tokens` for OpenAI models
 - `improvePromptRoute.test.ts` exercises the API route with:
-  - successful prompt enhancement
+  - successful prompt enhancement and signal forwarding
   - validation of non-string prompts
   - simulated service failures
   - timeout abort handling
   - invalid JSON bodies
-  - missing API key and header-based key usage
-  - API key provided in the request body
-  - model selection via `GEMINI_MODEL`
+  - missing API key and header/body-based key usage
+  - model selection via `OPENAI_MODEL`
+  - forwarding custom system prompts to the service
 - `colorPaletteSelector.test.tsx` verifies the color palette selector, ensuring:
   - application-friendly Color Hunt palettes are exposed
   - selecting a palette emits the expected prompt snippet
