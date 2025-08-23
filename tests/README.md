@@ -25,6 +25,8 @@ This directory contains unit tests for the Next.js OpenAI integration.
 - `dashboard.test.tsx` confirms the dashboard:
   - displays the "Create an Application" preset
   - routes to the Figma import screen when the import button is clicked
+  - sends textarea content for prompt enhancement and replaces it with the ChatGPT response
+  - surfaces a toast error when enhancement fails
 - `authFlow.test.tsx` exercises the login and signup forms ensuring:
   - successful login followed by OTP verification navigates to the dashboard
   - signup collects a full name and redirects to authenticator setup

@@ -52,20 +52,21 @@ export function Dashboard({ onImportFigma }: DashboardProps) {
   }
 
   const handleEnhancePrompt = async () => {
-    if (!prompt.trim() || enhancing) {
+    const currentText = textareaRef.current?.value ?? ""
+    if (!currentText.trim() || enhancing) {
       return
     }
-  const controller = new AbortController()
-  // Increase client-side timeout to 60s to match the server's default
-  // AI model timeout. The previous 15s value frequently aborted long
-  // model runs before receiving the improved prompt.
-  const timeout = setTimeout(() => controller.abort(), 60000)
+    const controller = new AbortController()
+    // Increase client-side timeout to 60s to match the server's default
+    // AI model timeout. The previous 15s value frequently aborted long
+    // model runs before receiving the improved prompt.
+    const timeout = setTimeout(() => controller.abort(), 60000)
     try {
       setEnhancing(true)
       const res = await fetch("/api/improve-prompt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, systemPrompt: SYSTEM_PROMPT }),
+        body: JSON.stringify({ prompt: currentText, systemPrompt: SYSTEM_PROMPT }),
         signal: controller.signal,
       })
         let data: any

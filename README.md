@@ -18,7 +18,7 @@ Sharp Coder is a comprehensive AI-powered coding platform that provides develope
 
 ### 🎯 Core Features
 - **AI Dashboard** - Intelligent prompt-based code generation
-- **Enhance Prompt Button** - Sends prompts to ChatGPT for instant refinement
+- **Enhance Prompt Button** - Sends textarea content with a predefined system prompt to ChatGPT and replaces it with the refined text
 - **AI Code Editor** - Full-featured editor with syntax highlighting and live preview
 - **Database Management** - Multi-database support (PostgreSQL, MongoDB, Redis)
 - **Project Management** - Track and organize your development projects
