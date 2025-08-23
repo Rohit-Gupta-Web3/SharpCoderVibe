@@ -99,8 +99,10 @@ export class ChatService {
             { role: "system", content: systemPrompt },
             { role: "user", content: rawPrompt },
           ],
-          max_tokens: 800,
-        };
+          // "max_tokens" is unsupported on some newer models; use "max_completion_tokens" instead
+          // which caps only the completion portion of the response.
+          max_completion_tokens: 800,
+        } as const;
         console.debug("ChatService.improvePrompt ->", { url, body: { model: this.model } });
         res = await this.fetchFn(url, {
           method: "POST",

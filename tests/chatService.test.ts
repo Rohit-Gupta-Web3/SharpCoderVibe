@@ -124,5 +124,29 @@ describe("ChatService", () => {
     await expect(promise).rejects.toHaveProperty("name", "AbortError");
     expect(errorSpy).toHaveBeenCalled();
   });
+
+  it("uses max_completion_tokens for OpenAI models", async () => {
+    const fetchMock = (url: string, options: any) => {
+      expect(url).toBe("https://api.openai.com/v1/chat/completions");
+      const body = JSON.parse(options.body);
+      expect(body).toMatchObject({
+        model: "gpt-test",
+        max_completion_tokens: 800,
+      });
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            choices: [{ message: { content: "done" } }],
+          }),
+      });
+    };
+    const svc = new ChatService(
+      { apiKey: "k", model: "gpt-test", provider: "openai" },
+      fetchMock as any,
+    );
+    const result = await svc.improvePrompt("p");
+    expect(result).toBe("done");
+  });
 });
 

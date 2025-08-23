@@ -9,6 +9,7 @@ This directory contains unit tests for the Next.js OpenAI integration.
   - handling network failures gracefully
   - surfacing structured and plain-text API error responses
   - propagating abort errors for timed-out requests
+  - using `max_completion_tokens` for OpenAI models
 - `improvePromptRoute.test.ts` exercises the API route with:
   - successful prompt enhancement and signal forwarding
   - validation of non-string prompts
