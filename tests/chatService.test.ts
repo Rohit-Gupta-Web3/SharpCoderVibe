@@ -1,10 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import {
-  ChatService,
-  PLACEHOLDER_RESPONSE,
-  SYSTEM_PROMPT,
-  type GeminiConfig
-} from "../lib/chatService";
+import { ChatService, SYSTEM_PROMPT, type GeminiConfig } from "../lib/chatService";
 
 describe("ChatService", () => {
   const config: GeminiConfig = {
@@ -24,10 +19,9 @@ describe("ChatService", () => {
     logSpy.mockRestore();
   });
 
-  it("returns placeholder when prompt is empty", async () => {
+  it("throws when prompt is empty", async () => {
     const svc = new ChatService(config, (() => Promise.reject(new Error("should not call"))) as any);
-    const result = await svc.improvePrompt("  ");
-    expect(result).toBe(PLACEHOLDER_RESPONSE);
+    await expect(svc.improvePrompt("  ")).rejects.toThrow("Prompt must not be empty");
   });
 
   it("sends system and user messages and returns response", async () => {

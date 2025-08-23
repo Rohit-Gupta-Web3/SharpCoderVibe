@@ -3,7 +3,7 @@
 This directory contains unit tests for the Next.js OpenAI integration.
 
 - `chatService.test.ts` validates the prompt improvement logic, including:
-  - returning a placeholder for empty prompts
+  - rejecting empty prompts
   - sending system and user messages to the OpenAI or Gemini APIs
   - overriding the system prompt when provided
   - handling network failures gracefully
@@ -19,6 +19,7 @@ This directory contains unit tests for the Next.js OpenAI integration.
   - missing API key and header/body-based key usage
   - model selection via `OPENAI_MODEL`
   - forwarding custom system prompts to the service
+  - handling empty service responses
 - `colorPaletteSelector.test.tsx` verifies the color palette selector, ensuring:
   - application-friendly Color Hunt palettes are exposed
   - selecting a palette emits the expected prompt snippet

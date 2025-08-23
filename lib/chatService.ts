@@ -5,8 +5,6 @@ export interface GeminiConfig {
   provider?: "gemini" | "openai";
 }
 
-export const PLACEHOLDER_RESPONSE = "/* Enter a prompt to improve */";
-
 export const SYSTEM_PROMPT =
   "You are a senior prompt engineer applying Gödel’s Scaffolded Cognitive Prompting (GSCP). " +
   "Rewrite the user's prompt using the full 8-step scaffold: " +
@@ -48,7 +46,7 @@ export class ChatService {
     options: { systemPrompt?: string; signal?: AbortSignal } = {}
   ): Promise<string> {
     if (!rawPrompt || !rawPrompt.trim()) {
-      return PLACEHOLDER_RESPONSE;
+      throw new Error("Prompt must not be empty");
     }
     const { systemPrompt = SYSTEM_PROMPT, signal } = options;
     // Support two providers: Gemini (Google) and OpenAI

@@ -5,7 +5,6 @@ const improvePromptMock = vi.fn();
 vi.mock("../lib/chatService", () => ({
   ChatService: vi.fn(() => ({ improvePrompt: improvePromptMock })),
   SYSTEM_PROMPT: "test-system",
-  PLACEHOLDER_RESPONSE: "placeholder",
 }));
 
 import { ChatService } from "../lib/chatService";
@@ -70,6 +69,19 @@ describe("improve-prompt API route", () => {
     expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ error: "boom" });
     expect(errorSpy).toHaveBeenCalled();
+  });
+
+  it("returns error when service yields empty text", async () => {
+    improvePromptMock.mockResolvedValueOnce("   ");
+    const req = new NextRequest(
+      new Request("http://test", {
+        method: "POST",
+        body: JSON.stringify({ prompt: "test" }),
+      }),
+    );
+    const res = await POST(req);
+    expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({ error: "No enhanced prompt returned" });
   });
 
   it("handles timeout aborts", async () => {

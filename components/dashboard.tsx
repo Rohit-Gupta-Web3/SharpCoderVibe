@@ -52,7 +52,7 @@ export function Dashboard({ onImportFigma }: DashboardProps) {
   }
 
   const handleEnhancePrompt = async () => {
-    const currentText = textareaRef.current?.value ?? ""
+    const currentText = prompt
     if (!currentText.trim() || enhancing) {
       return
     }
@@ -126,8 +126,8 @@ export function Dashboard({ onImportFigma }: DashboardProps) {
         toast({ variant: "destructive", title: "No enhanced prompt returned", description: "The service returned no text to replace the prompt." })
       } else {
         const cleanedResult = resultText.trim()
-  setPrompt(cleanedResult)
-  console.debug("dashboard: setPrompt ->", cleanedResult)
+        setPrompt(cleanedResult)
+        console.debug("dashboard: setPrompt ->", cleanedResult)
         // ensure the textarea shows the new value and is focused for the user
         // defer caret positioning to the next macrotask so React has applied the new value
         try {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ChatService, PLACEHOLDER_RESPONSE, SYSTEM_PROMPT } from "../../../lib/chatService";
+import { ChatService, SYSTEM_PROMPT } from "../../../lib/chatService";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
@@ -46,12 +46,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         systemPrompt,
         signal: controller.signal,
       });
-      // If the service returned nothing (empty string), return a safe placeholder
-      // so the client receives a useful value to display in the textarea.
-      if (!result || !result.trim()) {
-        return NextResponse.json({ result: PLACEHOLDER_RESPONSE });
+      const trimmed = typeof result === "string" ? result.trim() : "";
+      if (!trimmed) {
+        return NextResponse.json(
+          { error: "No enhanced prompt returned" },
+          { status: 500 },
+        );
       }
-      return NextResponse.json({ result });
+      return NextResponse.json({ result: trimmed });
     } finally {
       clearTimeout(timeout);
     }
