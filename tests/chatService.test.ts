@@ -56,6 +56,23 @@ describe("ChatService", () => {
     });
   });
 
+  it("overrides the system prompt when provided", async () => {
+    const fetchMock = (url: string, options: any) => {
+      const body = JSON.parse(options.body);
+      expect(body.system_instruction).toEqual({ parts: [{ text: "custom" }] });
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            candidates: [{ content: { parts: [{ text: "improved" }] } }]
+          })
+      });
+    };
+    const svc = new ChatService(config, fetchMock as any);
+    const result = await svc.improvePrompt("test", { systemPrompt: "custom" });
+    expect(result).toBe("improved");
+  });
+
   it("throws error when API fails", async () => {
     const fetchMock = () => Promise.reject(new Error("network"));
     const svc = new ChatService(config, fetchMock as any);
@@ -102,7 +119,7 @@ describe("ChatService", () => {
       });
     const svc = new ChatService(config, fetchMock as any);
     const controller = new AbortController();
-    const promise = svc.improvePrompt("test", controller.signal);
+    const promise = svc.improvePrompt("test", { signal: controller.signal });
     controller.abort();
     await expect(promise).rejects.toHaveProperty("name", "AbortError");
     expect(errorSpy).toHaveBeenCalled();
